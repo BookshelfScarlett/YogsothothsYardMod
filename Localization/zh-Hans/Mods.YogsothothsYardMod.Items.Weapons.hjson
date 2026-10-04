@@ -1,0 +1,49 @@
+Melee: {
+	CrimsonScythe: {
+		DisplayName: 特莉波卡的镰刀
+		Tooltip:
+			'''
+			手持时提供[YardModBuff/YogsothothsYardMod/AntiKnockbackBuff]
+			持续劈砍下，第四轮劈砍提升攻击范围
+			命中时放血，释放灵魂石，并施加[YardModDebuff/Terraria/Bleeding]，
+			你可以通过劈砍的方式，将灵魂石中的灵魂打回原主
+			也可以通过按下右键以收割灵魂石，恢复你的生命
+			'''
+		SpecialAttack:
+			'''
+			接下来的20次劈砍都会为你增加防御力
+			劈砍过程中自动将场上的灵魂石进行回收
+			吸收一份灵魂的同时将另一份灵魂打回原主
+			'''
+		FlavorTooltips: 红月之下，无人能逃过她的收割
+		ExtraMechanic:
+			'''
+			由特莉波卡携带时：
+			全面强化所有近战属性，并增加30%防御力
+			准许无限飞行并获得冲刺能力
+			'''
+		ConditionMechanic:
+			'''
+			黑色的第一太阳封存了这件物品的力量
+			或许应该去尝试超越太阳之神了
+			'''
+
+		KillerType: {
+			OnlyCoins:
+				'''
+				对该物品按下右键以切换城镇NPC击杀选项：
+				当前允许击杀NPC，仅掉落钱币
+				'''
+			AllStuff:
+				'''
+				对该物品按下右键以切换城镇NPC击杀选项：
+				当前允许击杀城镇NPC，掉落钱币和特殊物品
+				'''
+			NoKilling:
+				'''
+				对该物品按下右键以切换城镇NPC击杀选项：
+				当前击杀城镇NPC功能已关闭
+				'''
+		}
+	}
+}

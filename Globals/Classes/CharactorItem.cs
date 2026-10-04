@@ -1,0 +1,3 @@
+﻿namespace YogsothothsYardMod.Globals.Classes
+{
+}

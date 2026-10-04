@@ -1,0 +1,6 @@
+Items: {
+	TestSword: {
+		DisplayName: 调试
+		Tooltip: ""
+	}
+}

@@ -1,0 +1,13 @@
+GenericText: {
+	BuffDetail: ""
+	HoldShiftAndRightClick: ""
+	LegendaryItem: ""
+	UpgradeProgress: ""
+}
+
+SpecialAttack: {
+	ProgressName: ""
+	TitleName: ""
+}
+
+CompanionWeapon: ""

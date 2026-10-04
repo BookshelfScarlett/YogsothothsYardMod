@@ -1,0 +1,44 @@
+﻿using Terraria;
+
+namespace YogsothothsYardMod.Core.Handler
+{
+    public static class RandHandler
+    {
+        public static float RandRotTwoPi
+        {
+            get
+            {
+                return Main.rand.NextFloat(TwoPi);
+            }
+        }
+        public static Vector2 RandDirTwoPi
+        {
+            get
+            {
+                return RandRotTwoPi.ToRotationVector2();
+            }
+        }
+        public static Vector2 RandVelTwoPi(float minValue = 0f, float maxValue = 1f) => RandDirTwoPi * Main.rand.NextFloat(minValue, maxValue);
+        public static Vector2 RandVelTwoPi(float maxValue = 1f) => RandDirTwoPi * Main.rand.NextFloat(maxValue);
+        public static float RandZeroToOne => Main.rand.NextFloat(0f, 1f);
+        public static Vector2 ToRandCirclePosEdge(this Vector2 pos, float valueX = 2f, float? valueY = null)
+        {
+            float edgeY = valueY ?? valueX;
+            return pos + Main.rand.NextVector2CircularEdge(valueX, edgeY);
+        }
+        public static Vector2 ToRandCirclePos(this Vector2 pos, float valueX = 2f, float? valueY = null)
+        {
+            float edgeY = valueY ?? valueX;
+            return pos + Main.rand.NextVector2Circular(valueX, edgeY);
+        }
+        public static Vector2 ToRandRec(this Entity entity)
+        {
+            Rectangle rec = Utils.CenteredRectangle(entity.Center, new Vector2(entity.width, entity.height));
+            return Main.rand.NextVector2FromRectangle(rec);
+        }
+        public static bool RandBoolen(int chance = 2) => Main.rand.NextBool(chance);
+        public static float RandFloat(float minValue = 0f, float maxValue = 1f) => Main.rand.NextFloat(minValue, maxValue);
+        public static int GetSeconds(int seconds) => seconds * 60;
+        public static Color RandLerpColor(Color beginColor, Color endColor) => Color.Lerp(beginColor, endColor, RandZeroToOne);
+    }
+}

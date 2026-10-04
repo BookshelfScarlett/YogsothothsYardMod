@@ -1,0 +1,50 @@
+Melee: {
+	CrimsonScythe: {
+		DisplayName: Crimson Heavy Scythe
+		Tooltip:
+			'''
+			Grants[ScarletBuff/HJScarletRework/AntiKnockbackBuff]
+			Fourth swing has wider range
+			Each attack inflicts[ScarletDebuff/ContinentOfJourney/DivineFireBuff]
+			Causes bleed, and releases soul stones
+			You can slash the soul stones to return souls
+			Or, Right-click to harvest and heal
+			'''
+		SpecialAttack:
+			'''
+			Each of the next 20 slashes grants you 2 defense on hit
+			During these slashes, automatically collect souls int the stones
+			Absorb one soul while returning the other to its owner
+			'''
+		FlavorTooltips: Beneath the blood moon, none can escape her harvest
+		ExtraMechanic:
+			'''
+			When combined with the Front Desk Reaper set, gain the following effects:
+			Increase executor damage, critical strike chance, and critical strike damage by 15%
+			+30 defense, allows unlimited flight time and grants a dash ability
+			'''
+		ConditionMechanic:
+			'''
+			The Black First Sun has sealed the power of this item
+			Perhaps it is time to surpass the Sun God
+			'''
+
+		KillerType: {
+			OnlyCoins:
+				'''
+				Right-click to toggle the town NPC killing option
+				Currently allows killing town NPCs, dropping only coins
+				'''
+			AllStuff:
+				'''
+				Right-click to toggle the town NPC killing option
+				Currently allows killing town NPCs, dropping coins and items
+				'''
+			NoKilling:
+				'''
+				Right-click to toggle the town NPC killing option
+				Currently town NPC killing is disabled
+				'''
+		}
+	}
+}

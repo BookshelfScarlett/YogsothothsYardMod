@@ -1,0 +1,839 @@
+﻿using Microsoft.Xna.Framework.Graphics;
+using System.Collections.Generic;
+using Terraria;
+using Terraria.ID;
+using Terraria.ModLoader;
+using YogsothothsYardMod.Assets.Register;
+using YogsothothsYardMod.Content.Items.Weapon;
+using YogsothothsYardMod.Core.Database.Enums;
+using YogsothothsYardMod.Core.Handler;
+using YogsothothsYardMod.Core.ParticleECS;
+using YogsothothsYardMod.Core.PixelatedRender;
+using YogsothothsYardMod.Core.Primitives.Trail;
+using YogsothothsYardMod.Core.ScreenEffect;
+using YogsothothsYardMod.Globals.Graphics.Metaballs;
+using YogsothothsYardMod.Globals.Graphics.Particles;
+using YogsothothsYardMod.Globals.Methods;
+
+namespace YogsothothsYardMod.Content.Projs.Melee
+{
+    public class CrimsonScytheHeldProj : ModProjectile, ILocalizedModType, IPixelatedRenderer
+    {
+        public override string LocalizationCategory => "Projs.Melee";
+        public Player Owner => Main.player[Projectile.owner];
+        public ScarletDrawLayer LayerToRenderTo => ScarletDrawLayer.BeforeDusts;
+        public BlendState BlendState => BlendState.Additive;
+        public int OriginalItemID => ItemType<CrimsonScythe>();
+        public int AttackSpeed => Owner.ApplyWeaponAttackSpeed(Owner.HeldItem, Owner.HeldItem.useTime * Projectile.MaxUpdates, 5 * Projectile.MaxUpdates);
+
+        public AnimationStruct Helper = new AnimationStruct(3);
+        public float BeginTargetRotation = 0;
+        public float TargetRotation = 0;
+        public bool Flip = false;
+        public float Height = 1.25f;
+        public float Width = 1.25f;
+        public bool ThirdSwing = false;
+        public float SwingTime = 0;
+        public float StopTiming = 0;
+        public List<Vector2> OldAimPos = [];
+        public override void SetDefaults()
+        {
+            Projectile.SetUpHeldProj(10);
+            Projectile.friendly = true;
+            Projectile.penetrate = -1;
+            Projectile.usesLocalNPCImmunity = true;
+            Projectile.localNPCHitCooldown = -1;
+            Projectile.DamageType = DamageClass.Melee;
+            Projectile.stopsDealingDamageAfterPenetrateHits = true;
+
+        }
+        public void OnFirstFrame()
+        {
+            ThirdSwing = SwingTime > 2;
+            if (ThirdSwing)
+            {
+                Projectile.localNPCHitCooldown = 45;
+                ScarletSound(YardModSounds.Tlipoca_Swing, Projectile.Center, 0.75f, 1, 0.14f, 0.1f, 1);
+                Helper.MaxProgress[0] = (int)(AttackSpeed * .65f);
+                Helper.MaxProgress[1] = (int)(AttackSpeed * .3f);
+                Helper.MaxProgress[2] = (int)(AttackSpeed * .95f);
+            }
+            else
+            {
+                ScarletSound(YardModSounds.Tlipoca_Swing, Projectile.Center, 0.75f, 1, 0.1f + 0.14f * SwingTime, 0.1f, 2);
+                Helper.MaxProgress[0] = (int)(AttackSpeed * .65f);
+                Helper.MaxProgress[2] = (int)(AttackSpeed * .95f);
+                Width = Height *= Lerp(1f, 1.12f, SwingTime / 2f);
+            }
+            BeginTargetRotation = Owner.Center.ToMouseVector2().ToRotation();
+            TargetRotation = BeginTargetRotation;
+        }
+        public override void AI()
+        {
+            if (!Projectile.YardMod().FirstFrame)
+            {
+                OnFirstFrame();
+                return;
+            }
+            Projectile.velocity = Projectile.velocity.ToSafeNormalize();
+            UpdateAnimation();
+            UpdateHeldState();
+            UpdatePlayerState();
+            if (OldAimPos.Count > 5 * Projectile.MaxUpdates)
+                OldAimPos.RemoveAt(0);
+        }
+        public void HandleSoulStoneReaper()
+        {
+            foreach (var proj in Main.ActiveProjectiles)
+            {
+                if (proj.type != ProjectileType<CrimsonScytheSoulStone>())
+                    continue;
+                if (proj.owner != Owner.whoAmI)
+                    continue;
+                if (!proj.friendly)
+                    continue;
+                if (((CrimsonScytheSoulStone)proj.ModProjectile).AttackState != CrimsonScytheSoulStone.State.Idle)
+                    continue;
+                float _ = float.NaN;
+                Vector2 beamBeginPos = Owner.Center;
+                Vector2 beamEndPos = Projectile.Center + (Projectile.rotation).ToRotationVector2() * Projectile.scale * 130;
+                bool c = Collision.CheckAABBvLineCollision(proj.Hitbox.TopLeft(), proj.Hitbox.Size(), beamBeginPos, beamEndPos, 64f, ref _);
+                if (!c)
+                    continue;
+                if (Owner.YardMod().crimsonScytheAttackCounter > 0)
+                    ((CrimsonScytheSoulStone)proj.ModProjectile).BreakAI = CrimsonScytheSoulStone.BreakType.ExecutionStrike;
+                else
+                    ((CrimsonScytheSoulStone)proj.ModProjectile).BreakAI = CrimsonScytheSoulStone.BreakType.Return;
+                ((CrimsonScytheSoulStone)proj.ModProjectile).AttackState = CrimsonScytheSoulStone.State.Explosion;
+                ((CrimsonScytheSoulStone)proj.ModProjectile).InitVector2 = Owner.Center.GetNormalVector2(proj.Center);
+            }
+        }
+        public void OnExecution()
+        {
+            ScarletSound(YardModSounds.Misc_ManaClearUse, Owner.Center, 0.55f, 1, -0.84f, 0.2f);
+        }
+        public void UpdatePlayerState()
+        {
+            Projectile.velocity = TargetRotation.ToRotationVector2();
+            Owner.ChangeDir(Projectile.direction);
+            Projectile.spriteDirection = Flip.ToDirectionInt() * Projectile.direction;
+            Owner.ControlPlayerArm(Projectile.rotation);
+
+        }
+
+        public void UpdateHeldState()
+        {
+            Projectile.Center = Owner.MountedCenter;
+            if (Helper.Progress[2] <= 0)
+            {
+                Owner.itemTime = 2;
+                Owner.itemAnimation = 2;
+            }
+            Owner.heldProj = Projectile.whoAmI;
+            if (Owner.dead)
+                Projectile.Kill();
+            else
+                Projectile.timeLeft = 2;
+        }
+
+        public void UpdateAnimation()
+        {
+            if (StopTiming > 0)
+            {
+                StopTiming--;
+                return;
+            }
+            if (!ThirdSwing)
+            {
+                UpdateHalfCircleSwingAnimation();
+            }
+            else
+            {
+                UpdateFullCircleSwingAnimation();
+            }
+        }
+        #region 全向的第三挥砍
+        public void UpdateFullCircleSwingAnimation()
+        {
+            if (!Helper.IsDone[0])
+            {
+                UpdtaeFullCircleBegin();
+                HandleSoulStoneReaper();
+            }
+            else if (!Helper.IsDone[1])
+            {
+                UpdtaeFullCircleEnd();
+                if (OldAimPos.Count > 0)
+                    OldAimPos.RemoveAt(0);
+            }
+            else
+            {
+                SwingTime = -1;
+                Projectile.Kill();
+            }
+
+        }
+        public void UpdtaeFullCircleEnd()
+        {
+            Helper.UpdateAniState(1);
+            float heldScale = Owner.HeldItem.scale;
+            float easedProgress = EaseOutCubic(Helper.GetAniProgress(1));
+            float beginAngle = 415f * Flip.ToDirectionInt();
+            float endAngle = 420 * Flip.ToDirectionInt();
+            float rot = Helper.UpdateAngle(beginAngle, endAngle, Owner.direction, easedProgress);
+            Matrix tForm = Matrix.CreateRotationZ(rot) * Matrix.CreateScale(Width + .24f, Height + .24f, 1);
+            Vector2 tarPos = Vector2.Transform(Vector2.UnitX, tForm) * 1.65f * heldScale;
+            Projectile.scale = tarPos.Length();
+            Projectile.rotation = tarPos.ToRotation() + TargetRotation;
+            TargetRotation = TargetRotation.AngleTowards(Owner.GetToMouseVector2(Projectile.Center).ToRotation(), .05f);
+        }
+
+        public void UpdtaeFullCircleBegin()
+        {
+            float heldScale = Owner.HeldItem.scale;
+            Helper.UpdateAniState(0);
+            float easedProgress = EaseOutCubic(Helper.GetAniProgress(0));
+            float beginAngle = -210f * Flip.ToDirectionInt();
+            float endAngle = 415f * Flip.ToDirectionInt();
+            float rot = Helper.UpdateAngle(beginAngle, endAngle, Owner.direction, easedProgress);
+            Matrix tForm = Matrix.CreateRotationZ(rot) * Matrix.CreateScale(Width + .24f, Height + .24f, 1);
+            Vector2 tarPos = Vector2.Transform(Vector2.UnitX, tForm) * 1.65f * heldScale;
+            Projectile.scale = tarPos.Length();
+            Projectile.rotation = tarPos.ToRotation() + TargetRotation;
+            if (easedProgress < .01f)
+                TargetRotation = TargetRotation.AngleTowards(Owner.GetToMouseVector2(Projectile.Center).ToRotation(), .5f);
+            else
+            {
+                //下面基本上是粒子生成了。
+                float slashTrailRotation = Helper.UpdateAngle(beginAngle, endAngle + (0 * (Flip).ToDirectionInt()), Owner.direction, easedProgress);
+                Matrix tFormSlash = Matrix.CreateRotationZ(slashTrailRotation) * Matrix.CreateScale(Width + .24f, Height + .24f, 1f);
+                Vector2 slashTargetPos = Vector2.Transform(Vector2.UnitX, tFormSlash) * 1.65f * heldScale;
+                Vector2 slashPosFinal = slashTargetPos.RotatedBy(TargetRotation) * 120;
+                OldAimPos.Add(slashPosFinal);
+
+                if (easedProgress >= 0.98f)
+                    return;
+                for (int i = 0; i < 6; i++)
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + tarPos.RotatedBy(TargetRotation) * 120, Main.rand.NextFloat(0.991f, 1.01f));
+                    Vector2 dir = (pos - Projectile.Center).ToSafeNormalize(Vector2.UnitX);
+                    Vector2 vel = dir.RotatedBy(PiOver2 * Projectile.spriteDirection);
+                    Vector2 posOff = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2 * Projectile.spriteDirection) * i * 1.4f;
+                    pos = Vector2.Lerp(Projectile.Center, Projectile.Center + tarPos.RotatedBy(TargetRotation) * 120, Main.rand.NextFloat(0.67f, 0.85f));
+                    dir = (pos - Projectile.Center).ToSafeNormalize(Vector2.UnitX);
+                    vel = dir.RotatedBy(PiOver2 * Projectile.spriteDirection);
+                    ECSParticle.SmokeParticle(pos + posOff, vel * 9.3f, RandLerpColor(Color.DarkRed, Color.Black), Main.rand.Next(16, 41), RandRotTwoPi, 0.3670f * (easedProgress), Main.rand.NextFloat(.75f, 1.15f) * Lerp(0.395f, 0.595f, easedProgress), false, BlendState.AlphaBlend);
+                }
+
+                if (Main.rand.NextBool(1))
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + tarPos.RotatedBy(TargetRotation) * 115, Main.rand.NextFloat(.31f, .8f));
+                    Vector2 dir = (pos - Projectile.Center).ToSafeNormalize(Vector2.UnitX);
+                    Vector2 vel = Owner.velocity * 0.5f + dir.RotatedBy(PiOver2 * Owner.direction * Flip.ToDirectionInt()) * Main.rand.NextFloat(1.5f, 1.9f);
+                    ECSParticle.SnowCloud(pos, vel, RandLerpColor(Color.DarkRed, Color.Crimson), 40, RandRotTwoPi, 0.45f, 0.15f, BlendState.Additive);
+                }
+            }
+        }
+        #endregion
+        #region 起手两挥砍
+        public void UpdateHalfCircleSwingAnimation()
+        {
+            if (!Helper.IsDone[0])
+            {
+                UpdateBeginAnimation();
+                HandleSoulStoneReaper();
+
+            }
+            else if (!Helper.IsDone[2] && !Main.mouseLeft)
+            {
+                if (OldAimPos.Count > 0)
+                    OldAimPos.RemoveAt(0);
+
+                if (Main.mouseLeft || Owner.HeldItem.type != OriginalItemID)
+                {
+                    Projectile.Kill();
+                }
+                UpdateFinalAnimation();
+            }
+            else
+                Projectile.Kill();
+
+        }
+        public void UpdateBeginAnimation()
+        {
+            float heldScale = Owner.HeldItem.scale;
+            Helper.UpdateAniState(0);
+            float easedProgress = EaseOutExpo(Helper.GetAniProgress(0));
+            float beginAngle = -195f * Flip.ToDirectionInt();
+            float endAngle = 185f * Flip.ToDirectionInt();
+            float rot = Helper.UpdateAngle(beginAngle, endAngle, Owner.direction, easedProgress);
+            Matrix tForm = Matrix.CreateRotationZ(rot) * Matrix.CreateScale(Width, Height, 1);
+            Vector2 tarPos = Vector2.Transform(Vector2.UnitX, tForm) * 1.5f * heldScale;
+            Projectile.scale = tarPos.Length();
+            Projectile.rotation = tarPos.ToRotation() + TargetRotation;
+            if (easedProgress < .01f)
+                TargetRotation = TargetRotation.AngleTowards(Owner.GetToMouseVector2(Projectile.Center).ToRotation(), .5f);
+            else
+            {
+                //下面基本上是粒子生成了。
+                float slashTrailRotation = Helper.UpdateAngle(beginAngle, endAngle + (0 * (Flip).ToDirectionInt()), Owner.direction, easedProgress);
+                Matrix tFormSlash = Matrix.CreateRotationZ(slashTrailRotation) * Matrix.CreateScale(Width, Height, 1f);
+                Vector2 slashTargetPos = Vector2.Transform(Vector2.UnitX, tFormSlash) * 1.5f * heldScale;
+                Vector2 slashPosFinal = slashTargetPos.RotatedBy(TargetRotation) * 120;
+                OldAimPos.Add(slashPosFinal);
+                if (easedProgress >= 0.98f)
+                    return;
+                for (int i = 0; i <= 4; i += 2)
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + tarPos.RotatedBy(TargetRotation) * 120, Main.rand.NextFloat(0.67f, 0.85f));
+                    Vector2 dir = (pos - Projectile.Center).ToSafeNormalize(Vector2.UnitX);
+                    Vector2 vel = dir.RotatedBy(PiOver2 * Projectile.spriteDirection);
+                    if (Main.rand.NextBool(3))
+                        ECSParticle.SmokeParticle(pos + vel * i * 1.5f, vel * 8.3f, RandLerpColor(Color.DarkRed, Color.Black), Main.rand.Next(16, 41), RandRotTwoPi, 0.970f * (1 - easedProgress), Main.rand.NextFloat(.75f, 1.15f) * Lerp(0.357f, 0.9f, easedProgress), false, BlendState.AlphaBlend);
+                }
+                if (Main.rand.NextBool(3))
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + tarPos.RotatedBy(TargetRotation) * 115, Main.rand.NextFloat(.41f, .95f));
+                    Vector2 dir = (pos - Projectile.Center).ToSafeNormalize(Vector2.UnitX);
+                    Vector2 vel = Owner.velocity * 0.5f + dir.RotatedBy(PiOver2 * Owner.direction * Flip.ToDirectionInt()) * Main.rand.NextFloat(1.5f, 1.9f);
+                    ECSParticle.SnowCloud(pos, vel, RandLerpColor(Color.DarkRed, Color.Crimson), 40, RandRotTwoPi, 0.45f, 0.15f, BlendState.Additive);
+                }
+            }
+        }
+        public void UpdateEndAnimation()
+        {
+            Helper.UpdateAniState(1);
+            float heldScale = Owner.HeldItem.scale;
+            float easedProgress = EaseOutBack(Helper.GetAniProgress(1));
+            float beginAngle = 185f * Flip.ToDirectionInt();
+            float endAngle = 195 * Flip.ToDirectionInt();
+            float rot = Helper.UpdateAngle(beginAngle, endAngle, Owner.direction, easedProgress);
+            Matrix tForm = Matrix.CreateRotationZ(rot) * Matrix.CreateScale(Width, Height, 1);
+            Vector2 tarPos = Vector2.Transform(Vector2.UnitX, tForm) * 1.5f * heldScale;
+            Projectile.scale = tarPos.Length();
+            Projectile.rotation = tarPos.ToRotation() + TargetRotation;
+            TargetRotation = TargetRotation.AngleTowards(Owner.GetToMouseVector2(Projectile.Center).ToRotation(), .05f);
+        }
+        /// <summary>
+        /// 收尾动画，在开始收尾的时候这里就不会占用玩家的itemTime了
+        /// <br>在这个动画下按下左键会强制进行下一次的攻击</br>
+        /// </summary>
+        public void UpdateFinalAnimation()
+        {
+            Helper.UpdateAniState(2);
+            float heldScale = Owner.HeldItem.scale;
+            float easedProgress = EaseInCubic(Helper.GetAniProgress(2));
+            float beginAngle = 185f * Flip.ToDirectionInt();
+            float endAngle = 183f * Flip.ToDirectionInt();
+            float rot = Helper.UpdateAngle(beginAngle, endAngle, Owner.direction, easedProgress);
+            Matrix tForm = Matrix.CreateRotationZ(rot) * Matrix.CreateScale(Width, Height, 1);
+            Vector2 tarPos = Vector2.Transform(Vector2.UnitX, tForm) * 1.5f * heldScale;
+            Projectile.scale = tarPos.Length();
+            Projectile.rotation = tarPos.ToRotation() + TargetRotation;
+            TargetRotation = TargetRotation.AngleTowards(Owner.GetToMouseVector2(Projectile.Center).ToRotation(), .015f);
+        }
+        #endregion
+        #region 处理处死
+        public void HandleExecution()
+        {
+            if (Owner.YardMod().crimsonScytheHitCounter >= CrimsonScythe.ExecutionProgress)
+            {
+                Owner.YardMod().crimsonScytheHitCounter = 0;
+                Projectile.YardMod().ExecutionStrike = true;
+                Owner.YardMod().crimsonScytheAttackCounter = 20;            //在这里给玩家加成
+                ScarletSound(YardModSounds.Misc_ManaClearUse, Owner.Center, 0.55f, 1, -0.84f, 0.2f);
+            }
+        }
+        public override void OnKill(int timeLeft)
+        {
+            HandleExecution();
+            if (ThirdSwing)
+            {
+                Projectile.YardMod().ExecutionStrike = false;
+            }
+            if (Main.mouseLeft && Projectile.ai[0] == 0)
+            {
+                Projectile proj = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Projectile.velocity, Type, Projectile.damage, Projectile.knockBack, Projectile.owner);
+                ((CrimsonScytheHeldProj)proj.ModProjectile).Flip = !Flip;
+                ((CrimsonScytheHeldProj)proj.ModProjectile).SwingTime = SwingTime + 1;
+                proj.YardMod().HasExecutionMechanic = true;
+                proj.YardMod().ExecutionStrike = Projectile.YardMod().ExecutionStrike;
+            }
+            else if (!ThirdSwing || Projectile.ai[0] != 0)
+            {
+                ScarletSound(YardModSounds.Misc_ManaClearUse, Owner.Center, 0.55f, 1, -0.84f, 0.2f);
+                Owner.ScarletHeal(2);
+                for (int i = 0; i < 92; i++)
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + Projectile.rotation.ToRotationVector2() * 125f, Main.rand.NextFloat(.1f, 1.78f));
+                    Vector2 dir = Projectile.rotation.ToRotationVector2();
+                    BloodyMetaballAlt.SpawnParticle(pos + dir.RotatedBy(PiOver2) * Main.rand.NextFloat(-1, 1.1f) * 60, RandVelTwoPi(1.4f, 2.1f), 0.145f, RandRotTwoPi, true);
+                }
+                for (int i = 0; i < 20; i++)
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + Projectile.rotation.ToRotationVector2() * 125f, Main.rand.NextFloat(.1f, 1.58f));
+                    Vector2 dir = Projectile.rotation.ToRotationVector2();
+                    ECSParticle.SnowCloud(pos + dir.RotatedBy(PiOver2) * Main.rand.NextFloat(-1, 1.1f) * 75, RandVelTwoPi(0.7f, 1.2f), Color.Red, 45, 1, 0.45f, 0.2f);
+                }
+                for (int i = 0; i < 20; i++)
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + Projectile.rotation.ToRotationVector2() * 125f, Main.rand.NextFloat(.1f, 1.58f));
+                    Vector2 dir = Projectile.rotation.ToRotationVector2();
+                    BloodyMetaballAlt.SpawnParticle(pos + dir.RotatedBy(PiOver2) * Main.rand.NextFloat(-1, 1.1f) * 15, dir * Main.rand.NextFloat(1.4f, 2.1f), 0.745f, dir.ToRotation(), false, true);
+                }
+                for (int i = 0; i < 20; i++)
+                {
+                    Vector2 pos = Vector2.Lerp(Projectile.Center, Projectile.Center + Projectile.rotation.ToRotationVector2() * 125f, Main.rand.NextFloat(1.41f, 1.58f));
+                    Vector2 dir = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2);
+                    BloodyMetaballAlt.SpawnParticle(pos + dir * Main.rand.NextFloat(-42 * (-Flip.ToDirectionInt() * Owner.direction), 1.1f) * 1.5f, dir * Main.rand.NextFloat(1.4f, 2.1f), 0.745f, dir.ToRotation(), false, true);
+                }
+            }
+        }
+        #endregion
+        #region 处理命中
+        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
+        {
+            base.ModifyHitNPC(target, ref modifiers);
+        }
+        public override bool? CanHitNPC(NPC target)
+        {
+            bool noSwing = (ThirdSwing && Helper.IsDone[0]) || (!ThirdSwing && Helper.IsDone[0]) || StopTiming > 0;
+            if (noSwing)
+                return false;
+            //是否友好，是否城镇NPC，是否为非那个神人塔防水晶，是否允许启用击杀
+            if (target.friendly && target.townNPC && target.type != NPCID.DD2EterniaCrystal && Owner.YardMod().crimsonScytheSlayNPCType > 0)
+                return true;
+            if (!ThirdSwing)
+                return null;
+            if (EaseOutCubic(Helper.GetAniProgress(0)) < 0.97f)
+                return null;
+            if (!CacheTargetList.ContainsKey(target))
+                return null;
+            if (CacheTargetList.TryGetValue(target, out int value))
+            {
+                if (value < 2)
+                    return null;
+            }
+            return false;
+        }
+        public Dictionary<NPC, int> CacheTargetList = [];
+        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            if (target.friendly && target.townNPC)
+            {
+                new ScytheBlood(target.Center, Main.rand.NextFloat(.4f, .6f) * .6f).Spawn();
+                ScreenDarknessSystem.AddScreenDarkness(.85f, 2, 1, 12, EaseInCubic, EaseInCubic);
+                ApplyKilledNPCSpecialDrop(target);
+                return;
+            }
+            //处理音效
+            HitSoundHandler(target);
+            //目标不可用，别播放下面的特效。
+            if (!target.IsLegal())
+                return;
+            if (CacheTargetList.ContainsKey(target))
+            {
+                CacheTargetList[target] += 1;
+            }
+            else
+            {
+                CacheTargetList.TryAdd(target, 1);
+            }
+            HitEffectsHandler(target, hit, damageDone);
+            HitFirstEffectHandler(target);
+            PlayerEffectHandler();
+            SoulStoneSpawn(target);
+        }
+
+        public void ApplyKilledNPCSpecialDrop(NPC target)
+        {
+            if (Owner.YardMod().crimsonScytheSlayNPCType == 0)
+                return;
+            //世界范围内是否有骷髅王，且背包内是否有300颗和星星炮，且必须得没有史莱姆ang，且是否为夜晚
+            bool ezNumberCheck = Owner.CountItem(ItemID.FallenStar, 300) == 300
+                              && Owner.HasItem(ItemID.StarCannon)
+                              && NPC.AnyNPCs(NPCID.SkeletronHead)
+                              && !(Owner.HasItem(ItemID.SlimySaddle) || Owner.mount.Type == MountID.Slime);
+            if (ezNumberCheck)
+            {
+                FastDrop(ItemID.PlatinumCoin, 591);
+                FastDrop(ItemID.GoldCoin, 60);
+                FastDrop(ItemID.SilverCoin, 15);
+                FastDrop(ItemID.CopperCoin, 3);
+            }
+            else
+            {
+                if (Condition.DownedMoonLord.IsMet())
+                    FastDrop(ItemID.GoldCoin, Main.rand.Next(30, 61));
+                else if (Main.hardMode)
+                    FastDrop(ItemID.GoldCoin, Main.rand.Next(10, 31));
+                else
+                    FastDrop(ItemID.GoldCoin, Main.rand.Next(5, 11));
+                if (Main.rand.NextBool(15))
+                {
+                    if (Condition.DownedMoonLord.IsMet())
+                        FastDrop(ItemID.PlatinumCoin, Main.rand.Next(5, 11));
+                    else if (Main.hardMode)
+                        FastDrop(ItemID.PlatinumCoin, Main.rand.Next(1, 6));
+                    else
+                        FastDrop(ItemID.PlatinumCoin, 1);
+                }
+            }
+            if (Owner.YardMod().crimsonScytheSlayNPCType != 2)
+                return;
+
+            //各种特殊掉落，这些特殊掉落需要玩家特殊启用
+            //护士：生命水晶/生命果（世纪之花后），按流程分配的血瓶
+            if (target.type == NPCID.Nurse)
+            {
+                FastDrop(ItemID.LifeCrystal, Main.rand.Next(1, 3));
+                if (Condition.DownedPlantera.IsMet())
+                    FastDrop(ItemID.LifeFruit, Main.rand.Next(2, 6));
+                //if (DownedBossSystem.downedBarriYardModer)
+                //    FastDrop(ItemType<UltraHealingPotion>(), Main.rand.Next(5, 15));
+                else if (Condition.DownedCultist.IsMet())
+                    FastDrop(ItemID.SuperHealingPotion, Main.rand.Next(5, 15));
+                else if (Main.hardMode)
+                    FastDrop(ItemID.GreaterHealingPotion, Main.rand.Next(5, 15));
+                else
+                    FastDrop(ItemID.HealingPotion, Main.rand.Next(5, 15));
+            }
+            if (target.type == NPCID.Guide)
+            {
+                //if (DownedBossSystem.downedSon && Main.rand.NextBool(15))
+                //{
+                //    List<int> randItem = [ItemID.Zenith, ItemType<Zeus>(), ItemType<GoldenAppleEnchantedFully>(), ItemID.LongRainbowTrailWings, ItemType<BadgeFinal>(), ItemType<SpellPage_Finale>(), ItemType<HeartoftheMountain>()];
+                //    int num = Main.rand.NextFromCollection(randItem);
+                //    FastDrop(num, 1);
+                //}
+            }
+            if (target.type == NPCID.Truffle)
+            {
+                FastDrop(ItemID.MushroomSpear, 1);
+                //把你的自动锤炼机给我交出来！！
+                if (Condition.DownedPlantera.IsMet())
+                    FastDrop(ItemID.Autohammer, 1);
+            }
+            //if (target.type == NPCID.Wizard)
+            //{
+            //    //把你的传承结晶给我交出来！！
+            //    if (Main.rand.NextBool(8))
+            //        FastDrop(ItemType<CrystallizedLore>(), Main.rand.Next(1, 4));
+            //    FastDrop(ItemType<PurePrismFate>(), Main.rand.Next(10, 30));
+            //}
+            if (target.type == NPCID.ArmsDealer)
+            {
+                //把你的枪给我！！
+                FastDrop(ItemID.IllegalGunParts, Main.rand.Next(1, 4));
+            }
+            if (target.type == NPCID.Mechanic || target.type == NPCID.BoundMechanic)
+            {
+                //把你的精密线控仪给我！！
+                if (Main.hardMode)
+                {
+                    FastDrop(ItemID.WireKite, 1);
+
+                }
+                else
+                {
+                    FastDrop(ItemID.MulticolorWrench, 1);
+                }
+            }
+            if (target.type == NPCID.Steampunker && Condition.DownedGolem.IsMet())
+            {
+                //把你的蒸汽朋克翅膀给我！！
+                FastDrop(ItemID.SteampunkWings);
+            }
+            if (target.type == NPCID.WitchDoctor)
+            {
+                //把你的矮人物品给我！！
+                FastDrop(ItemID.PygmyNecklace);
+                if (Condition.DownedPlantera.IsMet())
+                {
+                    FastDrop(ItemID.TikiMask);
+                    FastDrop(ItemID.TikiShirt);
+                    FastDrop(ItemID.TikiPants);
+                    FastDrop(ItemID.PygmyStaff);
+                    FastDrop(ItemID.PapyrusScarab);
+                }
+            }
+            if (target.type == NPCID.DD2Bartender)
+            {
+                //if (DownedBossSystem.downedBarrier)
+                //    FastDrop(ItemID.DefenderMedal, Main.rand.Next(100, 151));
+                if (Main.hardMode)
+                    FastDrop(ItemID.DefenderMedal, Main.rand.Next(10, 31));
+                else
+                    FastDrop(ItemID.DefenderMedal, Main.rand.Next(1, 11));
+            }
+        }
+        public void FastDrop(int drop, int num = 1)
+        {
+            Owner.QuickSpawnItem(Owner.GetSource_FromThis(), drop, num);
+        }
+        public void SoulStoneSpawn(NPC target)
+        {
+            //if (!DownedBossSystem.downedSunGod)
+            //    return;
+            //灵魂石
+            if (Owner.ownedProjectileCounts[ProjectileType<CrimsonScytheSoulStone>()] < CrimsonScythe.MaxSoulStone)
+            {
+                Vector2 dir = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2 * Projectile.spriteDirection);
+                Projectile proj = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), target.Center, dir.ToRandVelocity(ToRadians(75f), 8f, 13f), ProjectileType<CrimsonScytheSoulStone>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
+                proj.originalDamage = Projectile.damage;
+                proj.YardMod().GlobalTargetIndex = target.whoAmI;
+            }
+        }
+        public void PlayerEffectHandler()
+        {
+            if (Owner.YardMod().crimsonScytheAttackCounter > 0)
+            {
+                if (Projectile.numHits < 1)
+                {
+                    Owner.YardMod().crimsonScytheAttackCounter--;
+                    Owner.YardMod().crimsonScytheDefense += CrimsonScythe.DefensePerAdd;
+                }
+                foreach (var proj in Main.ActiveProjectiles)
+                {
+                    if (proj.type != ProjectileType<CrimsonScytheSoulStone>())
+                        continue;
+                    if (proj.owner != Owner.whoAmI)
+                        continue;
+                    if (!proj.friendly)
+                        continue;
+                    if (((CrimsonScytheSoulStone)proj.ModProjectile).AttackState != CrimsonScytheSoulStone.State.Idle)
+                        continue;
+                    proj.YardMod().ExecutionStrike = true;
+                    ((CrimsonScytheSoulStone)proj.ModProjectile).AttackState = CrimsonScytheSoulStone.State.Explosion;
+                    ((CrimsonScytheSoulStone)proj.ModProjectile).BreakAI = CrimsonScytheSoulStone.BreakType.ExecutionStrike;
+                    break;
+                }
+            }
+        }
+        public void HitFirstEffectHandler(NPC target)
+        {
+            //只有第一次攻击命中才会给卡肉
+            if (Projectile.numHits > 0)
+                return;
+            Owner.YardMod().crimsonScytheHitCounter += 1;
+            StopTiming = 20;
+            //if (DownedBossSystem.downedSunGod)
+            //    Projectile.AddExecutionTimeImmediate(OriginalItemID);
+            float rot = Projectile.Center.GetNormalVector2(target.Center).ToRotation();
+            if (ThirdSwing)
+            {
+                float util = Utils.GetLerpValue(0, 12, Projectile.numHits, true);
+                int lerpValue = (int)(Lerp(30, 10, util));
+                ScreenShakeSystem.AddScreenShakes(target.Center, lerpValue, lerpValue, rot, 0, easingFunc: EaseOutExpo);
+            }
+            else
+            {
+                float util = Utils.GetLerpValue(0, 12, Projectile.numHits, true);
+                int lerpValue = (int)(Lerp(10, 0, util));
+                int lerpTime = (int)(Lerp(25, 0, util));
+                ScreenShakeSystem.AddScreenShakes(target.Center, lerpValue, lerpTime, rot, 0, easingFunc: EaseOutExpo);
+            }
+
+        }
+        public void HitEffectsHandler(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            //float rot = Projectile.rotation + PiOver2 * Projectile.spriteDirection;
+            if (!ThirdSwing)
+            {
+                //普通挥击下最多只生成12次特效，别产太多了
+                if (Projectile.numHits < 12)
+                    HitSparkle(target, hit, damageDone);
+            }
+            else
+            {
+                ScreenDarknessSystem.AddScreenDarkness(.85f, 2, 1, 12, EaseInCubic, EaseInCubic);
+                if (Projectile.numHits < 12)
+                    HitSparkleHeavy(target, hit, damageDone);
+            }
+        }
+
+        public void HitSoundHandler(NPC target)
+        {
+            //处理音效
+            float pitch = ThirdSwing ? 0.2f : -0.4f + SwingTime * .2f;
+            int t = ThirdSwing ? 2 : 1;
+            ScarletSound(YardModSounds.Tlipoca_StoneBonk, target.Center, volume: 0.6f, instances: 1, pitch: pitch, pitchVariance: .05f, variantType: t);
+        }
+
+        public void HitSparkleHeavy(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            int reverse = Projectile.spriteDirection;
+            //Vector2 dir = Projectile.Center.GetNormalVector2( target.Center);
+            Vector2 dir = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2 * reverse);
+            for (int i = 0; i < 40; i++)
+            {
+                ECSParticle.SmokeParticle(target.Center, dir.ToRandVelocity(ToRadians(35), 1.2f, 22.5f), RandLerpColor(Color.DarkRed, Color.Black), 40, RandRotTwoPi, 1, Main.rand.NextFloat(.9f, 1.2f) * .52f, blendstate: BlendState.AlphaBlend);
+            }
+            for (int i = 0; i < 40; i++)
+            {
+                ECSParticle.SmokeParticle(target.Center, RandVelTwoPi(1.2f, 8f), RandLerpColor(Color.Red, Color.Black), 40, RandRotTwoPi, 1, Main.rand.NextFloat(.9f, 1.2f) * .28f, Main.rand.NextBool(), blendstate: BlendState.NonPremultiplied);
+            }
+            for (int i = 0; i < 26; i++)
+            {
+                ECSParticle.LiliesFire(target.Center, RandVelTwoPi(1.2f, 8f), RandLerpColor(Color.Black, Color.Red), 40, RandRotTwoPi, 1, 0.2f * Main.rand.NextFloat(0.45f, 1.3f));
+            }
+            for (int i = 0; i < 26; i++)
+            {
+                ECSParticle.ShinyCrossStarECS(target.Center, RandVelTwoPi(1.2f, 8f), RandLerpColor(Color.DarkRed, Color.Red), 40, 1, 0.92f * Main.rand.NextFloat(0.95f, 1.3f), blendstate: BlendState.AlphaBlend);
+            }
+            for (int i = 0; i < 42; i++)
+            {
+                Vector2 vel = dir.ToRandVelocity(ToRadians(25), 1.9f, 44f);
+                BloodyMetaballAlt.SpawnParticle(target.Center, vel, Main.rand.NextFloat(0.75f, 1.2f) * 0.5f, vel.ToRotation() - Pi, true);
+            }
+            for (int i = 0; i < 32; i++)
+            {
+                Vector2 vel = dir.ToRandVelocity(ToRadians(15), 12f, 56f);
+                BloodyMetaballAlt.SpawnParticle(target.Center, vel, Main.rand.NextFloat(0.75f, 1.2f) * 0.92f, vel.ToRotation(), false, true);
+            }
+        }
+
+        public void HitSparkle(NPC target, NPC.HitInfo hit, int damageDone)
+        {
+            int reverse = Projectile.spriteDirection;
+            Vector2 dir = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2 * reverse);
+            for (int i = 0; i < 32; i++)
+            {
+                ECSParticle.SmokeParticle(target.Center, dir.ToRandVelocity(ToRadians(35), 1.2f, 22.5f), RandLerpColor(Color.DarkRed, Color.Black), 40, RandRotTwoPi, 1, Main.rand.NextFloat(.9f, 1.2f) * .52f, blendstate: BlendState.AlphaBlend);
+            }
+            for (int i = 0; i < 32; i++)
+            {
+                ECSParticle.SmokeParticle(target.Center, RandVelTwoPi(1.2f, 8f), RandLerpColor(Color.Red, Color.Black), 40, RandRotTwoPi, 1, Main.rand.NextFloat(.9f, 1.2f) * .28f, Main.rand.NextBool(), blendstate: BlendState.NonPremultiplied);
+            }
+            for (int i = 0; i < 16; i++)
+            {
+                ECSParticle.LiliesFire(target.Center, RandVelTwoPi(1.2f, 8f), RandLerpColor(Color.Black, Color.Red), 40, RandRotTwoPi, 1, 0.2f * Main.rand.NextFloat(0.45f, 1.3f));
+            }
+            for (int i = 0; i < 16; i++)
+            {
+                ECSParticle.ShinyCrossStarECS(target.Center, RandVelTwoPi(1.2f, 8f), RandLerpColor(Color.DarkRed, Color.Red), 40, 1, 0.92f * Main.rand.NextFloat(0.95f, 1.3f), blendstate: BlendState.AlphaBlend);
+            }
+            for (int i = 0; i < 32; i++)
+            {
+                Vector2 vel = dir.ToRandVelocity(ToRadians(25), 1.9f, 39f);
+                BloodyMetaballAlt.SpawnParticle(target.Center, vel, Main.rand.NextFloat(0.75f, 1.2f) * 0.5f, vel.ToRotation() - Pi, true);
+            }
+            for (int i = 0; i < 12; i++)
+            {
+                Vector2 vel = dir.ToRandVelocity(ToRadians(15), 12f, 44f);
+                BloodyMetaballAlt.SpawnParticle(target.Center, vel, Main.rand.NextFloat(0.75f, 1.2f) * 0.92f, vel.ToRotation(), false, true);
+            }
+        }
+
+        public override bool? Colliding(Rectangle projHitbox, Rectangle targetHitbox)
+        {
+            if (!Projectile.YardMod().FirstFrame)
+                return false;
+            float easedProgress = EaseOutCubic(Helper.GetAniProgress(0));
+            if (easedProgress < 0.01f)
+                return false;
+            float _ = float.NaN;
+            Vector2 beamBeginPos = Owner.Center;
+            Vector2 beamEndPos = Projectile.Center + (Projectile.rotation).ToRotationVector2() * Projectile.scale * 128;
+            bool c = Collision.CheckAABBvLineCollision(targetHitbox.TopLeft(), targetHitbox.Size(), beamBeginPos, beamEndPos, 64f, ref _);
+            return c;
+        }
+        #endregion
+        public SpriteBatch SB { get => Main.spriteBatch; }
+        public GraphicsDevice GD { get => Main.graphics.GraphicsDevice; }
+        #region 绘制
+        public void RenderPixelated(SpriteBatch spriteBatch)
+        {
+            YardMethods.EnterShaderAreaPixel(BlendState.Additive);
+            Texture2D texture = YardModAssets.Texture_StandardGradient.Value;
+            Effect effect = YardModShader.AlphaFade;
+            effect.Parameters["uFadeoutLeftLength"].SetValue(0.31f);
+            effect.Parameters["uFadeinRigtLength"].SetValue(0.3f);
+            effect.Parameters["UVMult"].SetValue(new Vector2(1f, 1f));
+            effect.CurrentTechnique.Passes[0].Apply();
+            DrawSlash(texture, Color.DarkRed * 0.80f, 0.55f);
+            DrawSlash(texture, Color.Red * 0.40f, 0.40f);
+            DrawSlash(texture, Color.IndianRed * 0.140f, 0.350f);
+
+
+            texture = YardModAssets.Texture_SwordSlash.Value;
+            effect = YardModShader.AlphaFade;
+            effect.Parameters["uFadeoutLeftLength"].SetValue(0.21f);
+            effect.Parameters["uFadeinRigtLength"].SetValue(0.3f);
+            effect.Parameters["UVMult"].SetValue(new Vector2(1f, 1f));
+            effect.CurrentTechnique.Passes[0].Apply();
+            DrawSlash(texture, Color.DarkRed * 0.55f, 0.95f);
+            DrawSlash(texture, Color.Red * 0.40f, 0.50f);
+            effect.Parameters["uFadeoutLeftLength"].SetValue(0.1f);
+            effect.Parameters["uFadeinRigtLength"].SetValue(0.05f);
+            DrawSlash(texture, Color.Lerp(Color.Crimson, Color.White, 0.760f) * 0.75f, 0.85f, 1f);
+            DrawSlash(texture, Color.Lerp(Color.IndianRed, Color.White, 0.790f) * 0.75f, 0.90f, 1f);
+
+            YardMethods.ApplyAlphaCut(new Vector4(.1f, .1f, 0, 0), new Vector2(-Main.GlobalTimeWrappedHourly * 1.395f, 0), new Vector2(1, 2), Color.Crimson);
+            Texture2D texture2 = YardModAssets.Noise_Misc.Value;
+            DrawSlash(texture2, Color.Red, 0.60f);
+            texture2 = YardModAssets.Noise_Aura.Value;
+            DrawSlash(texture2, Color.White, 0.45f);
+            YardMethods.EndShaderAreaPixel();
+        }
+        private List<ScarletVertex> _vertexCache = new List<ScarletVertex>(); // 类级别缓存
+        public void DrawSlash(Texture2D texture, Color drawcolor, float mult = 0.8f, float beginMult = 1f)
+        {
+            if (OldAimPos.Count < 3)
+                return;
+            _vertexCache.Clear();
+            List<ScarletVertex> Vertexlist = new List<ScarletVertex>();
+            for (int i = 0; i < OldAimPos.Count; i++)
+            {
+                float progress = (float)i / OldAimPos.Count;
+                Vector2 DrawPos_Head = OldAimPos[i] * beginMult + Projectile.Center - Main.screenPosition;
+                Vector2 DrawPos_Source = OldAimPos[i] * mult + Projectile.Center - Main.screenPosition;
+                _vertexCache.Add(new ScarletVertex(DrawPos_Head, drawcolor, new Vector3(progress, 0, 0)));
+                _vertexCache.Add(new ScarletVertex(DrawPos_Source, drawcolor, new Vector3(progress, 1, 0)));
+            }
+            GD.Textures[0] = texture;
+            GD.SamplerStates[0] = SamplerState.PointWrap;
+            GD.DrawUserPrimitives(PrimitiveType.TriangleStrip, _vertexCache.ToArray(), 0, _vertexCache.Count - 2);
+        }
+        public override bool PreDraw(ref Color lightColor)
+        {
+            if (!Projectile.YardMod().FirstFrame)
+                return false;
+            PixelatedRenderManager.BeginDrawProj = true;
+            Projectile.GetProjDrawInfo_Melee(out Texture2D tex, out Vector2 drawPosition, out float drawRotation, out Vector2 rotationPoint, out SpriteEffects flipSprite);
+            if (ThirdSwing)
+            {
+                Color c = Color.White;
+                float endPro = EaseInCubic(Helper.GetAniProgress(1));
+                float endPro2 = EaseInBack(Helper.GetAniProgress(1));
+                for (int i = 0; i < 16; i++)
+                    SB.Draw(tex, drawPosition + (TwoPi / 16f * i).ToRotationVector2() * 2f, null, Color.Red.ToAddColor() * (1 - endPro2), drawRotation, rotationPoint, Projectile.scale * (1 - endPro), flipSprite, 0);
+                SB.Draw(tex, drawPosition, null, c * (1 - endPro2), drawRotation, rotationPoint, Projectile.scale * (1 - endPro), flipSprite, 0);
+                SB.EnterShaderArea();
+                Texture2D glow = YardModAssets.Particle_CrossGlow.Value;
+                Vector2 pos = drawPosition + Vector2.UnitX.RotatedBy(Projectile.rotation) * 95f * Projectile.scale * (1 - endPro);
+                float glowScale = Projectile.scale * .15f * (1 - endPro);
+                SB.Draw(glow, pos, null, Color.DarkRed, drawRotation, glow.Size() / 2, glowScale, flipSprite, 0);
+                SB.Draw(glow, pos, null, Color.Red, drawRotation, glow.Size() / 2, glowScale * .95f, flipSprite, 0);
+                SB.Draw(glow, pos, null, Color.White, drawRotation, glow.Size() / 2, glowScale * .92f, flipSprite, 0);
+                SB.EndShaderArea();
+            }
+            else
+            {
+                float time = SwingTime / 3f;
+                Color c = Color.Lerp(Color.White, Color.Black, Helper.GetAniProgress(2));
+                for (int i = 0; i < 16; i++)
+                    SB.Draw(tex, drawPosition + (TwoPi / 16f * i).ToRotationVector2() * 2f * time, null, Color.Red.ToAddColor(), drawRotation, rotationPoint, Projectile.scale, flipSprite, 0);
+                SB.Draw(tex, drawPosition, null, c, drawRotation, rotationPoint, Projectile.scale, flipSprite, 0);
+            }
+            SB.EnterShaderArea(BlendState.NonPremultiplied);
+            Texture2D texture = YardModAssets.Texture_SwordSlashWhite.Value;
+            YardMethods.ApplyAlphaCut(new Vector4(0.41f, 0.53f, 0.12f, 0.12f), Vector2.One, Vector2.One);
+            DrawSlash(texture, Color.Black * 0.6f, 0.75f, 0.99f);
+            DrawSlash(texture, Color.DarkRed * 0.150f, 0.60f, 0.99f);
+            SB.EndShaderArea();
+            return false;
+        }
+        #endregion
+    }
+}

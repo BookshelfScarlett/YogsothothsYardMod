@@ -1,0 +1,75 @@
+LittleLeafBody: {
+	DisplayName: Little Leaf Body
+	Tooltip: ""
+}
+
+LittleLeafHead: {
+	DisplayName: Little Leaf Head
+	Tooltip: ""
+	SetBonus: ""
+	UpgradeOne: ""
+	UpgradeTwo: ""
+	UpgradeThree: ""
+}
+
+LittleLeafLegs: {
+	DisplayName: Little Leaf Legs
+	Tooltip: ""
+}
+
+TlipocaBody: {
+	DisplayName: Tlipoca Body
+	Tooltip: ""
+}
+
+TlipocaHead: {
+	DisplayName: Tlipoca Head
+	Tooltip: ""
+	SetBonus: ""
+	UpgradeOne: ""
+	UpgradeTwo: ""
+	UpgradeThree: ""
+}
+
+TlipocaLegs: {
+	DisplayName: Tlipoca Legs
+	Tooltip: ""
+}
+
+XiaLuLingBody: {
+	DisplayName: Xia Lu Ling Body
+	Tooltip: ""
+}
+
+XiaLuLingHead: {
+	DisplayName: Xia Lu Ling Head
+	Tooltip: ""
+	SetBonus: ""
+	UpgradeOne: ""
+	UpgradeTwo: ""
+	UpgradeThree: ""
+}
+
+XiaLuLingLegs: {
+	DisplayName: Xia Lu Ling Legs
+	Tooltip: ""
+}
+
+YevnaBody: {
+	DisplayName: Yevna Body
+	Tooltip: ""
+}
+
+YevnaHead: {
+	DisplayName: Yevna Head
+	Tooltip: ""
+	SetBonus: ""
+	UpgradeOne: ""
+	UpgradeTwo: ""
+	UpgradeThree: ""
+}
+
+YevnaLegs: {
+	DisplayName: Yevna Legs
+	Tooltip: ""
+}
