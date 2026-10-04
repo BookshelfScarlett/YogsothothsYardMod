@@ -47,14 +47,20 @@ namespace YogsothothsYardMod.Assets.Register
         public static Tex2DWithPath IconWeibo { get; set; }
         public static Tex2DWithPath IconX { get; set; }
         public static Tex2DWithPath IconSelectedBackground { get; set; }
-        public static Tex2DWithPath IconBackgoundGlow{ get; set; }
-        public static Tex2DWithPath IconExits{ get; set; }
-        public static Tex2DWithPath IconCGs{ get; set; }
-        public static Tex2DWithPath YardSheet{ get; set; }
+        public static Tex2DWithPath IconBackgoundGlow { get; set; }
+        public static Tex2DWithPath IconExits { get; set; }
+        public static Tex2DWithPath IconCGs { get; set; }
+        public static Tex2DWithPath YardSheet { get; set; }
+        public static Tex2DWithPath TlipocaEmote { get; set; }
+        public static Tex2DWithPath LittleLeafEmote { get; set; }
+        public static Tex2DWithPath YevnaEmote { get; set; }
+        public static Tex2DWithPath XiaLuLingEmote { get; set; }
         public static Tex2DWithPath Logo { get; set; }
 
         public static Tex2DWithPath ButtonBackgroundMain { get; set; }
         public static Tex2DWithPath ButtonBackgroundSelected { get; set; }
+        public static Tex2DWithPath CGsButtonSelected{ get; set; }
+        public static Tex2DWithPath CGsButtonNotSelected{ get; set; }
         public override void Load()
         {
             LoadMenu();
@@ -85,8 +91,14 @@ namespace YogsothothsYardMod.Assets.Register
             IconExits = new Tex2DWithPath(Path_Menu + nameof(IconExits));
             IconCGs = new Tex2DWithPath(Path_Menu + nameof(IconCGs));
             YardSheet = new Tex2DWithPath(Path_Menu + nameof(YardSheet));
+            TlipocaEmote = new Tex2DWithPath(Path_Menu + nameof(TlipocaEmote));
+            LittleLeafEmote = new Tex2DWithPath(Path_Menu + nameof(LittleLeafEmote));
+            YevnaEmote = new Tex2DWithPath(Path_Menu + nameof(YevnaEmote));
+            XiaLuLingEmote = new Tex2DWithPath(Path_Menu + nameof(XiaLuLingEmote));
             ButtonBackgroundMain = new Tex2DWithPath(Path_Menu + nameof(ButtonBackgroundMain));
             ButtonBackgroundSelected = new Tex2DWithPath(Path_Menu + nameof(ButtonBackgroundSelected));
+            CGsButtonNotSelected= new Tex2DWithPath(Path_Menu + nameof(CGsButtonNotSelected));
+            CGsButtonSelected= new Tex2DWithPath(Path_Menu + nameof(CGsButtonSelected));
         }
         public void UnloadMenu()
         {
@@ -101,9 +113,15 @@ namespace YogsothothsYardMod.Assets.Register
             ButtonBackgroundMain = null;
             ButtonBackgroundSelected = null;
             IconBackgoundGlow = null;
+            TlipocaEmote = null;
+            LittleLeafEmote = null;
+            XiaLuLingEmote = null;
+            YevnaEmote = null;
             IconExits = null;
             IconCGs = null;
             YardSheet = null;
+            CGsButtonSelected = null;
+            CGsButtonNotSelected = null;
         }
     }
 }

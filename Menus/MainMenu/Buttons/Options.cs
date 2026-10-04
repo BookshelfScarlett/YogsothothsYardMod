@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
+using Terraria.Localization;
+using YogsothothsYardMod.Assets.Register;
+using YogsothothsYardMod.Core.Database.Enums;
 using YogsothothsYardMod.Globals.Methods;
 using YogsothothsYardMod.Menus.Classes;
 using YogsothothsYardMod.Menus.Managers;
@@ -23,6 +27,20 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         {
             YardMenuUpdates.GeneralFadingRatios = 0;
             YardMenuMethods.ChangeMenu(TargetMenuID);
+            SoundEngine.PlaySound(YardModSounds.MenuPress);
+            LocalizedText path = Language.GetOrRegister("Mods.YogsothothsYardMod.Menu." + TextKeyName);
+            string value = path.Value;
+            YardMenuDraw.DrawTextValue = value;
+            YardWaifus randWaifu = Main.rand.NextFromList([YardWaifus.LittleLeaf, YardWaifus.Tlipoca, YardWaifus.XiaLuLing, YardWaifus.Yevna]);
+            YardMenuDraw.Waifus = randWaifu;
+            int f = Main.rand.NextFromList([0, 2, 4]);
+            Vector2 f2 = Main.rand.NextFromList([new Vector2(600f, 150f), new Vector2(-600, -150f)]);
+            YardMenuDraw.Useframe = f;
+            YardMenuDraw.CurCharactorFrame = f;
+            YardMenuDraw.CurPosIndex = Main.rand.Next(0, YardMenuDraw.RandPosList.Count);
+            YardMenuDraw.DrawTextValue = value;
+
+
         }
         public override void MouseHover(bool isHover)
         {

@@ -16,7 +16,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         {
             Position = IconCenter;
             Rectangle = Utils.CenteredRectangle(Position, IconTex.Size() * .32f);
-            if (Exit.LerpOpacityValue >=.8f)
+            if (Exit.LerpOpacityValue >= .8f)
             {
                 if (PosOffsetY >= 1f)
                     return;
@@ -27,7 +27,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
-            DrawHandler(spriteBatch,PosOffsetY);
+            DrawHandler(spriteBatch, PosOffsetY);
         }
     }
 }

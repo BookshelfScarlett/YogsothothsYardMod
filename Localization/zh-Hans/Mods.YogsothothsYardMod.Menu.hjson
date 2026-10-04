@@ -4,6 +4,9 @@ LoadGames: 单 人 游 戏
 Options: 设 置
 Name: 犹格索托斯的庭院
 CGs: 画 廊
+CGsHud: 画 廊
+Achievements: 成 就 列 表
+Credits: 工 作 人 员
 Multiplayer: 多 人 游 戏
 JumpToSina: 查看官方微博
 JumpToB2: 查看官方B站页面

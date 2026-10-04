@@ -28,7 +28,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
-            DrawHandler(spriteBatch,PosOffsetY);
+            DrawHandler(spriteBatch, PosOffsetY);
         }
     }
 }

@@ -12,5 +12,6 @@ namespace YogsothothsYardMod.Assets.Register
         public static SoundStyle Tlipoca_Swing => new SoundStyle($"{SoundsPath}{nameof(Tlipoca_Swing)}", numVariants: 2);
         public static SoundStyle Tlipoca_NpcKillSound => new SoundStyle($"{SoundsPath}{nameof(Tlipoca_NpcKillSound)}");
         public static SoundStyle GalvanizedHand_Charge => new($"{SoundsPath}{nameof(GalvanizedHand_Charge)}", numVariants: 2);
+        public static SoundStyle MenuPress => new($"{SoundsPath}{nameof(MenuPress)}");
     }
 }

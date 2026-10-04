@@ -174,7 +174,7 @@ namespace YogsothothsYardMod.Globals.Methods
         public static void DrawCube(this SpriteBatch spriteBatch, Rectangle rec)
         {
             Texture2D whiteCube = YardModAssets.Texture_WhiteCubeBig.Value;
-            spriteBatch.Draw(whiteCube, rec, Color.White);
+            spriteBatch.Draw(whiteCube, rec, Color.White*.3f);
         }
 
 

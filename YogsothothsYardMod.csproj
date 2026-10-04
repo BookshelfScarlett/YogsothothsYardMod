@@ -9,7 +9,6 @@
 	</PropertyGroup>
 	<ItemGroup>
 	  <Folder Include="Content\Items\Vanity\" />
-	  <Folder Include="Menus\AltMenu\" />
 	</ItemGroup>
 	<ItemGroup>
 	  <PackageReference Include="Krafs.Publicizer" Version="2.3.0">

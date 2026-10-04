@@ -51,11 +51,11 @@ namespace YogsothothsYardMod.Menus.Managers
             BlackRedGradient = new Texture2D(gd, 1, height);
             Color[] data = new Color[height];
             Color top = Color.Black;
-            Color bottom = Color.Lerp(Color.DarkRed, Color.Black, .75f);
+            Color bottom = Color.Lerp(Color.DarkRed, Color.Black, .8f);
             for (int i = 1; i < height; i++)
             {
                 float t = i / (float)(height - 1);
-                data[i] = Color.Lerp(top, bottom, t);
+                data[i] = Color.Lerp(top, bottom, EaseOutCubic(t));
             }
             BlackRedGradient.SetData(data);
             return BlackRedGradient;

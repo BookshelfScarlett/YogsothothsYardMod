@@ -1,6 +1,5 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
-using Steamworks;
 using Terraria;
 using Terraria.ID;
 using Terraria.Localization;
@@ -24,6 +23,7 @@ namespace YogsothothsYardMod.Menus.Classes
         /// <br>填入的是对应的Localization的键，在基类里会自动管理</br>
         /// </summary>
         public virtual string TextKeyName => GetType().Name;
+        public virtual string TextValue => Language.GetTextValue("Mods.YogsothothsYardMod.Menu." + TextKeyName);
         public virtual string HardcodeName => TextKeyName;
         /// <summary>
         /// 按钮的原点。默认00
@@ -91,12 +91,11 @@ namespace YogsothothsYardMod.Menus.Classes
             string value = path.Value;
             string value2 = HardcodeName;
             Vector2 textPos = Position + Vector2.UnitY * lerpY;
-            Vector2 textPos2 = Position - Vector2.UnitY * 25f + Vector2.UnitY* lerpY;
+            Vector2 textPos2 = Position - Vector2.UnitY * 25f + Vector2.UnitY * lerpY;
             ChatManager.DrawColorCodedString(spriteBatch, dynamicSpriteFont, value2,
                 textPos2, Color.White * lerpingOpcaity, 0, dynamicSpriteFont.MeasureString(value2) / 2f, Vector2.One * 1.05f * lerpingScale);
             ChatManager.DrawColorCodedString(spriteBatch, dynamicSpriteFont, value,
                 textPos, Color.White * lerpingOpcaity, 0, dynamicSpriteFont.MeasureString(value) / 2f, Vector2.One * .55f * lerpingScale);
-            //spriteBatch.DrawCube(Rectangle);
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
         }

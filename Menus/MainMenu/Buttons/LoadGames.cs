@@ -1,6 +1,10 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Terraria;
+using Terraria.Audio;
 using Terraria.ID;
+using Terraria.Localization;
+using YogsothothsYardMod.Assets.Register;
+using YogsothothsYardMod.Core.Database.Enums;
 using YogsothothsYardMod.Core.Huds;
 using YogsothothsYardMod.Globals.Methods;
 using YogsothothsYardMod.Menus.Classes;
@@ -11,7 +15,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
     public class LoadGames : YardButtonClass
     {
         public override Vector2 ButtonPosition => YardMethods.GetScreenSize / 2f - new Vector2(400, -25);
-        public override int TargetMenuID => MenuID.None;
+        public override int TargetMenuID => MenuID.CharacterSelect;
         public override float ButtonScale => base.ButtonScale;
         public override string HardcodeName => "Load";
         public override Rectangle Hitbox => Utils.CenteredRectangle(Position, new Vector2(300, 50));
@@ -23,10 +27,19 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             //需要进入alt的二级UI
             //我们需要在这里同时处理两个事项：多人游戏与单人游戏
             //创意工坊按钮已经单独解离出去作为第二按钮，
-            if (!YardHudManager.ActiveDepth[2])
-            {
-                YardMenuUpdates.GeneralFadingRatios = 0;
-            }
+            YardMenuUpdates.GeneralFadingRatios = 0;
+            YardMenuMethods.ChangeMenu(TargetMenuID);
+            SoundEngine.PlaySound(YardModSounds.MenuPress);
+            LocalizedText path = Language.GetOrRegister("Mods.YogsothothsYardMod.Menu." + TextKeyName);
+            string value = path.Value;
+            YardWaifus randWaifu = Main.rand.NextFromList([YardWaifus.LittleLeaf, YardWaifus.Tlipoca, YardWaifus.XiaLuLing, YardWaifus.Yevna]);
+            YardMenuDraw.Waifus = randWaifu;
+            int f = Main.rand.NextFromList([0, 2, 4]);
+            Vector2 f2 = Main.rand.NextFromList([new Vector2(600f, 150f), new Vector2(-600, -150f)]);
+            YardMenuDraw.Useframe = f;
+            YardMenuDraw.CurCharactorFrame = f;
+            YardMenuDraw.CurPosIndex = Main.rand.Next(0, YardMenuDraw.RandPosList.Count);
+            YardMenuDraw.DrawTextValue = value;
         }
         public override void MouseHover(bool isHover)
         {

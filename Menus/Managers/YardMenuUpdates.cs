@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Terraria;
 using Terraria.ID;
 using YogsothothsYardMod.Core.Huds;
+using YogsothothsYardMod.Menus.AltMenu;
 using YogsothothsYardMod.Menus.MainMenu;
 using YogsothothsYardMod.Menus.MainMenu.Buttons;
 
@@ -18,6 +19,7 @@ namespace YogsothothsYardMod.Menus.Managers
         public static YardHud Workshop => YardHudManager.UICollection[GetInstance<Workshop>().Type];
         public static YardHud SwitchMenu => YardHudManager.UICollection[GetInstance<SwitchMenu>().Type];
         public static YardHud CGs => YardHudManager.UICollection[GetInstance<CGs>().Type];
+        public static YardHud CGsHud => YardHudManager.UICollection[GetInstance<CGsHud>().Type];
         public static YardHud JumpToB2 => YardHudManager.UICollection[GetInstance<JumpToB2>().Type];
         public static YardHud JumpToDC => YardHudManager.UICollection[GetInstance<JumpToDC>().Type];
         public static YardHud JumpToSina => YardHudManager.UICollection[GetInstance<JumpToSina>().Type];
@@ -66,6 +68,7 @@ namespace YogsothothsYardMod.Menus.Managers
             {
                 if (Main.menuMode != LastMenuID)
                     Main.menuMode = LastMenuID;
+                YardMenuDraw.IsOpeningAchievement = false;
                 GeneralFadingRatios = Lerp(GeneralFadingRatios, 1f, frames);
                 if (BlackLayer < 1f)
                     BlackLayer = Lerp(BlackLayer, 1f, frames);
@@ -120,13 +123,11 @@ namespace YogsothothsYardMod.Menus.Managers
             Multiplayer.Update();
             CGs.Update();
             Exit.Update();
-
             JumpToB2.Update();
             JumpToDC.Update();
             JumpToSina.Update();
             JumpToX.Update();
-
-
+            CGsHud.Update();
         }
     }
 }

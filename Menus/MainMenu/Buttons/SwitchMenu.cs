@@ -3,10 +3,12 @@ using ReLogic.Graphics;
 using System;
 using System.Linq;
 using Terraria;
+using Terraria.Audio;
 using Terraria.GameContent;
 using Terraria.Localization;
 using Terraria.ModLoader;
 using Terraria.UI.Chat;
+using YogsothothsYardMod.Assets.Register;
 using YogsothothsYardMod.Core.Huds;
 using YogsothothsYardMod.Menus.Managers;
 
@@ -55,6 +57,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         {
             if (YardMenu.CanSwitchToOtherMenu)
             {
+                SoundEngine.PlaySound(YardModSounds.MenuPress);
                 MenuLoader.OffsetModMenu(1);
             }
         }
@@ -62,6 +65,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         {
             if (YardMenu.CanSwitchToOtherMenu)
             {
+                SoundEngine.PlaySound(YardModSounds.MenuPress);
                 MenuLoader.OffsetModMenu(-1);
             }
         }

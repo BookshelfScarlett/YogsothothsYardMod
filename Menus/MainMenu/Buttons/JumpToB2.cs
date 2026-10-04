@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
 using Terraria;
-using Terraria.Chat;
+using Terraria.Audio;
 using Terraria.Localization;
 using Terraria.UI.Chat;
 using YogsothothsYardMod.Assets.Register;
@@ -32,8 +32,8 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         public override void PostUpdate()
         {
             Position = IconCenter;
-            Rectangle = Utils.CenteredRectangle(Position, IconTex.Size()*.32f);
-            if (JumpToX.PosOffsetY >=.8f)
+            Rectangle = Utils.CenteredRectangle(Position, IconTex.Size() * .32f);
+            if (JumpToX.PosOffsetY >= .8f)
             {
                 if (PosOffsetY >= 1f)
                     return;
@@ -73,10 +73,11 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         public override void OnMouseLeftRelease()
         {
             Utils.OpenToURL(WebLine);
+            SoundEngine.PlaySound(YardModSounds.MenuPress);
         }
         public override void Draw(SpriteBatch spriteBatch)
         {
-            DrawHandler(spriteBatch,PosOffsetY);
+            DrawHandler(spriteBatch, PosOffsetY);
         }
         public void DrawHandler(SpriteBatch spriteBatch, float lerpPosY = 1)
         {
@@ -84,7 +85,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             Texture2D backgroundTex = IconTex;
             float yOffset = Lerp(45f, 0f, lerpPosY);
             Vector2 vectorHoverOffset = -Vector2.UnitY * yOffset;
-            Main.spriteBatch.Draw(backgroundTex, Position+vectorHoverOffset, null, Color.Lerp(Color.OrangeRed, Color.LightGoldenrodYellow, .65f)*lerpPosY, 0, backgroundTex.Size() / 2f, IconScale * .32f, 0, 0);
+            Main.spriteBatch.Draw(backgroundTex, Position + vectorHoverOffset, null, Color.Lerp(Color.OrangeRed, Color.LightGoldenrodYellow, .65f) * lerpPosY, 0, backgroundTex.Size() / 2f, IconScale * .32f, 0, 0);
 
             //准备本地化文本
             DynamicSpriteFont font = YardFonts.Font_YaHei.Value;
@@ -96,13 +97,13 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             Vector2 textOrigin = new Vector2(or.X, or.Y / 2f);
             //绘制文本栏背景
             float realTextOpacity = TextOpactiy * lerpPosY;
-            Vector2 backgroundCenter = IconCenter + new Vector2(-20 * realTextOpacity, 0) - Vector2.UnitX*20f;
+            Vector2 backgroundCenter = IconCenter + new Vector2(-20 * realTextOpacity, 0) - Vector2.UnitX * 20f;
             Texture2D backgroundPlate = YardModAssets.IconSelectedBackground.Value;
             Vector2 plateOrigin = new Vector2(backgroundPlate.Size().X, backgroundPlate.Size().Y / 2);
-            Vector2 platePos = backgroundCenter + Vector2.UnitY * 5 - Vector2.UnitX * 5+vectorHoverOffset;
-            Vector2 plateSize = new Vector2(realTextOpacity* BackgroundScaleX, 1);
+            Vector2 platePos = backgroundCenter + Vector2.UnitY * 5 - Vector2.UnitX * 5 + vectorHoverOffset;
+            Vector2 plateSize = new Vector2(realTextOpacity * BackgroundScaleX, 1);
             float ratios = textSize.X / plateSize.X;
-            plateSize = new Vector2(realTextOpacity* ratios, 1);
+            plateSize = new Vector2(realTextOpacity * ratios, 1);
             //目标宽度 = 文本宽度 + 左右各 padding 像素的留白
             float padding = 12f;
             float desiredWidth = textSize.X + padding * 2f;
@@ -116,7 +117,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             spriteBatch.End();
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
-            Vector2 textPos = IconCenter + new Vector2(-(30 + TextOffsetX) * realTextOpacity, 5) - Vector2.UnitX*20f+vectorHoverOffset;
+            Vector2 textPos = IconCenter + new Vector2(-(30 + TextOffsetX) * realTextOpacity, 5) - Vector2.UnitX * 20f + vectorHoverOffset;
             ChatManager.DrawColorCodedString(Main.spriteBatch, font, GetDisplayText(), textPos, Color.White * realTextOpacity, 0, textOrigin, Vector2.One * .5f);
             //恢复默认批次状态
             spriteBatch.End();
