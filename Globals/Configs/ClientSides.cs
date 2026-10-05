@@ -14,31 +14,14 @@ namespace YogsothothsYardMod.Globals.Configs
         }
         public override ConfigScope Mode => ConfigScope.ClientSide;
         public override bool AcceptClientChanges(ModConfig pendingConfig, int whoAmI, ref NetworkText message) => false;
-        [BackgroundColor(139, 0, 0, 192)]
-        [DefaultValue(true)]
-        public bool SpecialRarity { get; set; }
-
-        [BackgroundColor(139, 0, 0, 192)]
-        [Range(50, 30000)]
-        [Increment(1)]
-        [DefaultValue(10000)]
-        public int MaxParticleCounts { get; set; }
 
         [BackgroundColor(139, 0, 0, 192)]
         [DefaultValue(true)]
         public bool DrawIcon { get; set; }
 
         [BackgroundColor(139, 0, 0, 192)]
-        [DefaultValue(false)]
-        public bool PerformanceMode { get; set; }
-
-        [BackgroundColor(139, 0, 0, 192)]
         [DefaultValue(true)]
         public bool DrawExecutionCounter { get; set; }
-
-        [BackgroundColor(139, 0, 0, 192)]
-        [DefaultValue(true)]
-        public bool SimpleImmersiveInventory { get; set; }
 
         [BackgroundColor(139, 0, 0, 192)]
         [Range(0, 10f)]
@@ -49,15 +32,6 @@ namespace YogsothothsYardMod.Globals.Configs
         [Range(0f, 1f)]
         [DefaultValue(1f)]
         public float ScreenDarkStrength { get; set; }
-
-        [BackgroundColor(139, 0, 0, 192)]
-        [DefaultValue(false)]
-        public bool TraditionalExecutionTooltipShowcase { get; set; }
-
-        [BackgroundColor(139, 0, 0, 192)]
-        [Range(0f, 1f)]
-        [DefaultValue(1f)]
-        public float ModSFXVolume { get; set; }
         [BackgroundColor(139, 0, 0, 192)]
         [Range(0f, 1f)]
         [DefaultValue(1f)]

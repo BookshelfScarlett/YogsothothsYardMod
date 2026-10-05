@@ -13,14 +13,15 @@ namespace YogsothothsYardMod.Globals.Players.Dashes
     {
         public override int ImmuneTime(Player player) => 24;
         public override int DashTime(Player player) => 18;
-        public override int DashDelay(Player player) => 12;
+        public override int DashDelay(Player player) => 10;
         public override DashEnum DashOnHitType => DashEnum.Slam;
         public override DashDamageInfo DashDamageInfo(Player player)
         {
             return new DashDamageInfo(100, 3f, DamageClass.Generic);
         }
-        public override float DashSpeed(Player player) => 28f;
-        public override float DashEndSpeedMult(Player player) => 0.5f;
+        public override DashDirectionEnum DashDirection => DashDirectionEnum.VerticalAndHorizonal;
+        public override float DashSpeed(Player player) => 26f;
+        public override float DashEndSpeedMult(Player player) => 1f;
         public override void OnDashStart(Player player)
         {
             ScarletSound(YardModSounds.GalvanizedHand_Charge, player.Center, 1, 1, pitch: .1f, .1f, 1);

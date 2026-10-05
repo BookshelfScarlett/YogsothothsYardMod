@@ -18,7 +18,8 @@ namespace YogsothothsYardMod.Content.Items.Armor.LittleLeaf
         public override void SetDefaults()
         {
             Item.width = Item.height = 16;
-            Item.defense = 4;
+            //Item.defense = 4;
+            Item.vanity = true;
             Item.YardMod().drawGhostIcon = true;
             Item.rare = RarityType<LittleLeaftRarity>();
         }
@@ -33,7 +34,7 @@ namespace YogsothothsYardMod.Content.Items.Armor.LittleLeaf
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)
         {
-            tooltips.ApplyLegendaryTooltipline();
+            //tooltips.ApplyLegendaryTooltipline();
         }
         public override void PostDrawTooltipLine(DrawableTooltipLine line)
         {
@@ -41,7 +42,7 @@ namespace YogsothothsYardMod.Content.Items.Armor.LittleLeaf
             {
                 LittleLeaftRarity.DrawItemName(line);
             }
-            line.ApplyColorForLegendaryData(LittleLeaftRarity.EdgeColor, LittleLeaftRarity.MainColor);
+            //line.ApplyColorForLegendaryData(LittleLeaftRarity.EdgeColor, LittleLeaftRarity.MainColor);
         }
         public override void AddRecipes()
         {

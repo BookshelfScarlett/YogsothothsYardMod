@@ -16,7 +16,8 @@ namespace YogsothothsYardMod.Content.Items.Armor.Tlipoca
         {
             base.SetStaticDefaults();
         }
-        public override LocalizedText Tooltip => base.Tooltip;
+        public float Crit = 2f;
+        public override LocalizedText Tooltip => base.Tooltip.WithFormatArgs(Crit + "%");
         public override void SetDefaults()
         {
             Item.width = Item.height = 16;
@@ -27,7 +28,7 @@ namespace YogsothothsYardMod.Content.Items.Armor.Tlipoca
         }
         public override void UpdateEquip(Player player)
         {
-            base.UpdateEquip(player);
+            player.GetCritChance<MeleeDamageClass>() += Crit;
         }
         public override void UpdateArmorSet(Player player)
         {

@@ -1,10 +1,6 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Transactions;
 using Terraria;
-using Terraria.ModLoader;
 using Terraria.UI.Chat;
 using YogsothothsYardMod.Assets.Register;
 using YogsothothsYardMod.Core.Database.Enums;
@@ -51,21 +47,13 @@ namespace YogsothothsYardMod.Menus.Managers
         public static int Useframe = 1;
         public static int CurCharactorFrame = 1;
         public static int CurTime = 0;
-        public static float CurRotation = ToRadians(10f);
+        public static float CurRotation = ToRadians(5f);
         public static int CurPosIndex = 0;
         public static bool IsOpeningAchievement = false;
 
-        public static List<Vector2> RandPosList =
-            [
-            new Vector2(-600,150),
-            new Vector2(-550,-60),
-            new Vector2(600,150),
-            new Vector2(700,-60),
-            new Vector2(700,-60),
-            ];
         public static void PostDraw()
         {
-            if (Main.menuMode != YardMenu.ID&&!IsOpeningAchievement)
+            if (Main.menuMode != YardMenu.ID && !IsOpeningAchievement)
             {
                 YardMethods.EnterHudArea(BlendState.NonPremultiplied, SamplerState.LinearClamp);
                 DrawBackgroundDirty();
@@ -92,11 +80,11 @@ namespace YogsothothsYardMod.Menus.Managers
                 CurRotation *= -1;
                 CurCharactorFrame += 1;
             }
-            if (CurCharactorFrame >= Useframe + 2)
+            if (CurCharactorFrame > Useframe + 1)
             {
                 CurCharactorFrame = Useframe;
             }
-            Vector2 pos = YardMethods.GetScreenSize / 2f + new Vector2(600,150);
+            Vector2 pos = YardMethods.GetScreenSize / 2f + new Vector2(600, 150);
             SB.Draw(useTex, pos, frame, Color.White, CurRotation, frame.Size() / 2f, .5f, 0, 0);
         }
 

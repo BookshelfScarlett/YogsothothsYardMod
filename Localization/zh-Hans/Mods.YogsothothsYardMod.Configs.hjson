@@ -1,58 +1,51 @@
 YardModClientConfig: {
-	// DisplayName: Yard Mod Client Config
-
-	SpecialRarity: {
-		// Label: Special Rarity
-		// Tooltip: ""
-	}
-
-	MaxParticleCounts: {
-		// Label: Max Particle Counts
-		// Tooltip: ""
-	}
+	DisplayName: 客户端设置
 
 	DrawIcon: {
-		// Label: Draw Icon
-		// Tooltip: ""
-	}
-
-	PerformanceMode: {
-		// Label: Performance Mode
-		// Tooltip: ""
+		Label: 绘制角标
+		Tooltip:
+			'''
+			允许为模组物品绘制角标
+			默认为是
+			'''
 	}
 
 	DrawExecutionCounter: {
-		// Label: Draw Execution Counter
-		// Tooltip: ""
-	}
-
-	SimpleImmersiveInventory: {
-		// Label: Simple Immersive Inventory
-		// Tooltip: ""
+		Label: 绘制屠杀进程条
+		Tooltip:
+			'''
+			允许手持特莉波卡的镰刀时绘制屠杀进程条
+			默认开启
+			'''
 	}
 
 	ScreenShakeStrength: {
-		// Label: Screen Shake Strength
-		// Tooltip: ""
+		Label: 震屏力度
+		Tooltip:
+			'''
+			允许你调整震屏力度的大小
+			范围为(0 - 10)倍
+			默认为1倍
+			'''
 	}
 
 	ScreenDarkStrength: {
-		// Label: Screen Dark Strength
-		// Tooltip: ""
-	}
-
-	TraditionalExecutionTooltipShowcase: {
-		// Label: Traditional Execution Tooltip Showcase
-		// Tooltip: ""
-	}
-
-	ModSFXVolume: {
-		// Label: Mod S F X Volume
-		// Tooltip: ""
+		Label: 屏幕暗化效果
+		Tooltip:
+			'''
+			允许你调整模组内部分物品的屏幕暗化力度
+			范围为0至1，即0%到100%
+			默认为1
+			'''
 	}
 
 	TextboxSize: {
-		// Label: Textbox Size
-		// Tooltip: ""
+		Label: 文本框大小调整
+		Tooltip:
+			'''
+			允许你调整模组内物品额外文本框的大小
+			如果你遇到了文本框过大的问题，可以调整这个设置
+			默认为1，即100%
+			'''
 	}
 }

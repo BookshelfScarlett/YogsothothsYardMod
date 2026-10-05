@@ -2,6 +2,7 @@
 using System;
 using Terraria;
 using Terraria.GameContent;
+using Terraria.GameContent.ItemDropRules;
 using Terraria.ID;
 using Terraria.ModLoader;
 using YogsothothsYardMod.Globals.Instances.Items;
@@ -458,6 +459,10 @@ namespace YogsothothsYardMod.Globals.Methods
         {
             Main.spriteBatch.End();
             Main.spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.AlphaBlend, Main.DefaultSamplerState, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+        }
+        public static void AddCommon(this ItemLoot item, int itemID, int dropRateInt = 1, int minQuantity = 1, int maxQuantity = 1)
+        {
+            item.Add(ItemDropRule.Common(itemID, dropRateInt, minQuantity, maxQuantity));
         }
     }
 }

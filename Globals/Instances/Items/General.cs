@@ -10,7 +10,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.UI.Chat;
 using YogsothothsYardMod.Assets.Register;
-using YogsothothsYardMod.Core.Database.Localizations;
+using YogsothothsYardMod.Globals.Configs;
 using YogsothothsYardMod.Globals.Methods;
 
 namespace YogsothothsYardMod.Globals.Instances.Items
@@ -34,7 +34,7 @@ namespace YogsothothsYardMod.Globals.Instances.Items
         }
         public override void PostDrawInInventory(Item item, SpriteBatch spriteBatch, Vector2 position, Rectangle frame, Color drawColor, Color itemColor, Vector2 origin, float scale)
         {
-            if (drawGhostIcon)
+            if (drawGhostIcon && YardModClientConfig.Instance.DrawIcon)
             {
                 Vector2 iconPosition = position + new Vector2(15f * Main.inventoryScale, 15f * Main.inventoryScale);
                 float iconScale = 0.31f;
@@ -62,8 +62,8 @@ namespace YogsothothsYardMod.Globals.Instances.Items
         public void GlobalIconInsert(Item item, List<TooltipLine> tooltips)
         {
             //先画出buff转化的提示文本
-            if (buffs.Count != 0)
-                tooltips.CreateTooltip(ScarletTextSets.GeneralText_BuffShow, ScarletTextSets.GeneralText_BuffShowColor);
+            //if (buffs.Count != 0)
+            //    tooltips.CreateTooltip(ScarletTextSets.GeneralText_BuffShow, ScarletTextSets.GeneralText_BuffShowColor);
             buffs.Clear();
             //遍历tooltip行，我们开始找匹配的正则表达式
             for (int i = 0; i < tooltips.Count; i++)
@@ -139,6 +139,7 @@ namespace YogsothothsYardMod.Globals.Instances.Items
                 }
             }
             //用于写入具体的buffTooltip
+            return;
             if (Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftAlt) && buffs.Count != 0)
             {
                 if (tooltips.Count < 2)

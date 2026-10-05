@@ -186,7 +186,7 @@ namespace YogsothothsYardMod.Globals.Methods
                 Main.hardMode.ToInt() +
                 add(Condition.DownedQueenSlime) +
                 add(Condition.DownedTwins) +
-                add(Condition.DownedDestroyer) +
+                add(Condition.DownedSkeletronPrime) +
                 add(Condition.DownedDestroyer) +
                 add(Condition.DownedPlantera) +
                 add(Condition.DownedGolem) +

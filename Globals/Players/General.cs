@@ -1,8 +1,8 @@
 ﻿using Terraria;
 using Terraria.ModLoader;
+using Terraria.ModLoader.IO;
+using YogsothothsYardMod.Content.Items;
 using YogsothothsYardMod.Content.Items.Weapon;
-using YogsothothsYardMod.Content.Projs.Melee;
-using YogsothothsYardMod.Globals.Graphics.Metaballs;
 using YogsothothsYardMod.Globals.Methods;
 
 namespace YogsothothsYardMod.Globals.Players
@@ -13,71 +13,52 @@ namespace YogsothothsYardMod.Globals.Players
         public int crimsonScytheAttackCounter = 0;
         public int crimsonScytheDefense = 0;
         public int crimsonScytheSlayNPCType = 0;
+        public int maidReaperIndex = -1;
+        public int maidReaperHealTimer = 0;
         public int globalSoundDelay = 0;
         public bool Executor_DrawFadeIn = false;
         public bool Executor_DrawFadeOut = false;
+        public float critDamage = 1f;
+        public bool tlipocaArmor = false;
         public int NoSlowFall = 0;
+        public bool yardPack = false;
+        public bool IsHoldingTlipocaScythe => Player.HeldItem.type == ItemType<CrimsonScythe>();
+        public bool infiniteFlightTime = false;
+        public int LegendaryLevel = YardMethods.GetLegendaryLevel();
+        public override void LoadData(TagCompound tag)
+        {
+            yardPack = tag.GetBool("YardModGivePack");
+            crimsonScytheSlayNPCType = tag.GetInt("YardModSlayingNPC");
 
-        public override void PreUpdate()
+        }
+        public override void SaveData(TagCompound tag)
+        {
+                        tag.Add("YardModGivePack", yardPack);
+            tag.Add("YardModSlayingNPC", crimsonScytheSlayNPCType);
 
-        {
-            base.PreUpdate();
         }
-        public override void ResetEffects()
+        public override void OnEnterWorld()
         {
-            base.ResetEffects();
-        }
-        public override void UpdateDead()
-        {
-            crimsonScytheAttackCounter = 0;
-        }
-        public override void PostUpdate()
-        {
-            if (Player.HeldItem.type == ItemType<CrimsonScythe>() && !Player.HasProj<CrimsonScytheSkillProj>() && Main.mouseRight && Main.mouseRightRelease && Main.hoverItemName == "")
+            if (!yardPack)
             {
-                Vector2 dir = (Main.MouseWorld - Player.Center).SafeNormalize(Vector2.UnitX);
-                foreach (var id in Main.ActiveProjectiles)
+                Player.QuickSpawnItemDirect(Player.GetSource_FromThis(), ItemType<YogsothothsYardPack>());
+                yardPack = true;
+            }
+        }
+        public override void ModifyHitNPCWithProj(Projectile proj, NPC target, ref NPC.HitModifiers modifiers)
+        {
+            if (IsHoldingTlipocaScythe && YardMethods.GetLegendaryLevel()>= 15)
+            {
+                modifiers.DefenseEffectiveness *= 0;
+            }
+            if (tlipocaArmor && proj.DamageType.CountsAsClass<MeleeDamageClass>())
+            {
+                modifiers.CritDamage += critDamage;
+                if (IsHoldingTlipocaScythe)
                 {
-                    if (id.type != ProjectileType<CrimsonScytheHeldProj>())
-                        continue;
-                    if (id.owner != Player.whoAmI)
-                        continue;
-                    id.ai[0] = 114514;
-                    dir = id.velocity;
-                    id.Kill();
+                    if (target.IsLegal())
+                        maidReaperIndex = target.whoAmI;
                 }
-                Projectile proj = Projectile.NewProjectileDirect(Player.GetSource_FromThis(), Player.Center, dir, ProjectileType<CrimsonScytheSkillProj>(), 0, 0, Player.whoAmI);
-                ((CrimsonScytheSkillProj)proj.ModProjectile).BeginTargetRotation = 0;
-                ((CrimsonScytheSkillProj)proj.ModProjectile).Flip = true;
-            }
-            base.PostUpdate();
-        }
-
-        public override void PostUpdateEquips()
-        {
-            base.PostUpdateEquips();
-        }
-        public override void PostUpdateMiscEffects()
-        {
-            if (Player.HeldItem.type == ItemType<CrimsonScythe>() && crimsonScytheDefense > 0)
-            {
-                Player.statDefense += (int)crimsonScytheDefense;
-                Vector2 pos = Player.ToRandRec();
-                if (Player.miscCounter % 4 == 0)
-                    BloodyMetaball.SpawnParticle(pos, -Vector2.UnitY, 0.4f, PiOver2);
-            }
-            if (globalSoundDelay > 0)
-                globalSoundDelay--;
-            if (crimsonScytheDefense > 0 && crimsonScytheAttackCounter < 1)
-                crimsonScytheDefense -= 1;
-        }
-        public override void PostUpdateRunSpeeds()
-        {
-            if (NoSlowFall > 0)
-            {
-                Player.slowFall = false;
-                Player.maxFallSpeed = 114514;
-                Player.GoingDownWithGrapple = true;
             }
         }
     }

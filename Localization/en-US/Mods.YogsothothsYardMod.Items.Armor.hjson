@@ -18,27 +18,29 @@ LittleLeafLegs: {
 }
 
 TlipocaBody: {
-	DisplayName: Tlipoca Body
-	Tooltip: ""
+	DisplayName: Tlipoca's Robe
+	Tooltip: Increases melee critical strike chance by {0}%
 }
 
 TlipocaHead: {
-	DisplayName: Tlipoca Head
-	Tooltip: ""
-	SetBonus: ""
-	UpgradeOne: ""
-	UpgradeTwo: ""
-	UpgradeThree: ""
+	DisplayName: Tlipoca's Headband
+	Tooltip: Increases melee damage by {0}%
+	SetBonus:
+		'''
+		+2 HP/s health regeneration rate
+		Increases melee damage by {0}%, melee critical strike chance by {1}%
+		Increases critical strike damage by {2}%, defense by {3}
+		While holding [i:YogsothothsYardMod/CrimsonScythe]Tlipoca's Scythe:
+		Press the Ability key to harvest the health of enemies you hit
+		The health harvested is determined by the enemy's current health and the scythe's Slaughter Progress
+		The more health harvested, the longer the cooldown of this ability
+		Maximum harvest is 5% of the enemy's current health
+		'''
 }
 
 TlipocaLegs: {
-	DisplayName: Tlipoca Legs
-	Tooltip: ""
-}
-
-XiaLuLingBody: {
-	DisplayName: Xia Lu Ling Body
-	Tooltip: ""
+	DisplayName: Tlipoca's Skirt
+	Tooltip: Increases critical strike damage by {0}%
 }
 
 XiaLuLingHead: {
@@ -71,5 +73,10 @@ YevnaHead: {
 
 YevnaLegs: {
 	DisplayName: Yevna Legs
+	Tooltip: ""
+}
+
+XiaLuLingBody: {
+	DisplayName: Xia Lu Ling Body
 	Tooltip: ""
 }

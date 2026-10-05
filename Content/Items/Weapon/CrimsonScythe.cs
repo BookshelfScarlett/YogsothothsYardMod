@@ -4,8 +4,10 @@ using Terraria;
 using Terraria.DataStructures;
 using Terraria.ID;
 using Terraria.ModLoader;
+using YogsothothsYardMod.Content.Buffs;
 using YogsothothsYardMod.Content.Projs.Melee;
 using YogsothothsYardMod.Content.Rarity.Types;
+using YogsothothsYardMod.Core.Database.Localizations;
 using YogsothothsYardMod.Globals.Methods;
 using YogsothothsYardMod.Globals.Methods.Textbox;
 
@@ -14,6 +16,7 @@ namespace YogsothothsYardMod.Content.Items.Weapon
     public class CrimsonScythe : ModItem, ILocalizedModType
     {
         public override string LocalizationCategory => "Items.Weapons.Melee";
+        public override bool MeleePrefix() => true;
         public static int ExecutionProgress => 40;
         public static int DefensePerAdd = 2;
         public static int MaxSoulStone = 20;
@@ -76,7 +79,7 @@ namespace YogsothothsYardMod.Content.Items.Weapon
             };
             string killerText = this.GetLocalizationKey("KillerType." + killName);
             tooltips.CreateTooltip(killerText, Color.Crimson, "KillerTypeName", killerType + 1);
-
+            tooltips.CreateTooltip(ScarletTextSets.GeneralText_BuffShow, ScarletTextSets.GeneralText_BuffShowColor);
             CacheTooltipList = tooltips;
         }
         public void ExModifyTooltips(List<TooltipLine> tooltips)
@@ -107,50 +110,93 @@ namespace YogsothothsYardMod.Content.Items.Weapon
                 TextboxManager.FirstLineY = line.Y;
             }
             var settingList = new List<TextboxSettings>();
-            string detailText = this.GetLocalizationKey("SpecialAttack").ToLangValue();
-            int requirements = Math.Max(0, ExecutionProgress);
-            Player p = Main.LocalPlayer;
-            int curProgress = p.YardMod().crimsonScytheHitCounter;
-            string numberText = Mod.GetLocalizationKey("Database.SpecialAttack.ProgressName").ToLangValue().ToFormatValue(curProgress, requirements);
-            detailText += "\n" + "\n" + numberText;
-            //一堆设置，巴拉巴拉。
-            TextboxSettings sets = new()
+            if (!Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.LeftAlt))
             {
-                TitleText = Mod.GetLocalizationKey("Database.SpecialAttack.TitleName").ToLangValue(),
-                TitleTextColor = Color.Lerp(Color.Crimson, Color.Black, 1f) with { A = 255 },
-                TitleEdgeColor = Color.Red,
-                HasTitle = true,
-                BackgroundColor = Color.Lerp(Color.WhiteSmoke, Color.Black, .9f) * .60f,
-                BackgroundEdgeColor = Color.Lerp(Color.White, Color.DarkRed, 1f) * .78f,
-                MainText = detailText,
-                TextColor = Color.White,
-                TextEdgeColor = Color.Black,
-                TitleTextSize = 1.1f,
-                BoxSize = 1
-            };
-            settingList.Add(sets);
-            //最后传值。
-            detailText = this.GetLocalizationKey("ExtraMechanic").ToLangValue();
-            sets = new TextboxSettings()
+                string detailText = this.GetLocalizationKey("SpecialAttack").ToLangValue();
+                int requirements = Math.Max(0, ExecutionProgress);
+                Player p = Main.LocalPlayer;
+                int curProgress = p.YardMod().crimsonScytheHitCounter;
+                string numberText = Mod.GetLocalizationKey("Database.SpecialAttack.ProgressName").ToLangValue().ToFormatValue(curProgress, requirements);
+                detailText += "\n" + "\n" + numberText;
+                //一堆设置，巴拉巴拉。
+                TextboxSettings sets = new()
+                {
+                    TitleText = Mod.GetLocalizationKey("Database.SpecialAttack.TitleName").ToLangValue(),
+                    TitleTextColor = Color.Lerp(Color.Crimson, Color.Black, 1f) with { A = 255 },
+                    TitleEdgeColor = Color.Red,
+                    HasTitle = true,
+                    BackgroundColor = Color.Lerp(Color.WhiteSmoke, Color.Black, .9f) * .60f,
+                    BackgroundEdgeColor = Color.Lerp(Color.White, Color.DarkRed, 1f) * .78f,
+                    MainText = detailText,
+                    TextColor = Color.White,
+                    TextEdgeColor = Color.Black,
+                    TitleTextSize = 1.1f,
+                    BoxSize = .8f
+                };
+                settingList.Add(sets);
+                //最后传值。
+
+                detailText = this.GetLocalizationKey("ExtraMechanic").ToLangValue();
+                sets = new TextboxSettings()
+                {
+                    TitleText = Mod.GetLocalizationKey("Database.CompanionWeapon").ToLangValue(),
+                    TitleTextColor = Color.Lerp(Color.Crimson, Color.Black, 1f) with { A = 255 },
+                    TitleEdgeColor = Color.Red,
+                    HasTitle = true,
+                    BackgroundColor = Color.Lerp(Color.WhiteSmoke, Color.Black, .9f) * .60f,
+                    BackgroundEdgeColor = Color.Lerp(Color.White, Color.DarkRed, 1f) * .78f,
+                    MainText = detailText,
+                    TextColor = Color.White,
+                    TextEdgeColor = Color.Black,
+                    TitleTextSize = 1.1f,
+                    BoxSize = .8f
+                };
+                settingList.Add(sets);
+            }
+            else
             {
-                TitleText = Mod.GetLocalizationKey("Database.CompanionWeapon").ToLangValue(),
-                TitleTextColor = Color.Lerp(Color.Crimson, Color.Black, 1f) with { A = 255 },
-                TitleEdgeColor = Color.Red,
-                HasTitle = true,
-                BackgroundColor = Color.Lerp(Color.WhiteSmoke, Color.Black, .9f) * .60f,
-                BackgroundEdgeColor = Color.Lerp(Color.White, Color.DarkRed, 1f) * .78f,
-                MainText = detailText,
-                TextColor = Color.White,
-                TextEdgeColor = Color.Black,
-                TitleTextSize = 1.1f,
-                BoxSize = 1
-            };
-            settingList.Add(sets);
+                settingList.Add(ApplyAbilityTextbox(1).Value);
+                settingList.Add(ApplyAbilityTextbox(2).Value);
+                settingList.Add(ApplyAbilityTextbox(3).Value);
+                settingList.Add(ApplyAbilityTextbox(4).Value);
+            }
             TextboxMethods.DrawMultipleTextboxes(line, CacheTooltipList, settingList, 30);
         }
+        public TextboxSettings? ApplyAbilityTextbox(int abilityType = 1, params object[] args)
+        {
+            int curLevel = YardMethods.GetLegendaryLevel();
+            int thresholdLevel = (4 * abilityType) - 1;
+            string title = Mod.GetLocalizationKey("Database.GenericText.LegendaryAbilityTitle").ToLangValue().ToFormatValue(abilityType, thresholdLevel);
+            string mainText = this.GetLocalizationKey("LegendaryAbility.Type" + abilityType).ToLangValue();
+            if (args.Length > 0)
+                mainText = mainText.ToFormatValue(args);
+            float overAllOpac = 1f;
+            Color tileEd = Color.Red;
+            if (curLevel < thresholdLevel)
+            {
+                tileEd = Color.Lerp(Color.Red, Color.Black, .3f);
+                overAllOpac = .2f;
+            }
+            TextboxSettings sets = new TextboxSettings
+                (
+                backgroundColor: Color.Lerp(Color.WhiteSmoke, Color.Black, .9f) * .60f * (.1f + overAllOpac),
+                backgroundEdgeColor: Color.Lerp(Color.White, Color.DarkRed, 1f) * .78f * (.1f + overAllOpac),
+                mainText: mainText,
+                titleText: title,
+                textColor: Color.White * overAllOpac,
+                textEdgeColor: Color.Black * overAllOpac,
+                titleTextColor: Color.Lerp(Color.Crimson, Color.Black, 1f) with { A = 255 } * (.4f + overAllOpac),
+                titleEdgeColor: tileEd * overAllOpac,
+                titleTextSize: 1.1f,
+                hasTitle: true,
+                boxSize: .8f
+                );
+            return sets;
+        }
+
         public override void HoldItem(Player player)
         {
-            player.noKnockback = true;
+            //player.AddBuff(BuffType<AntiKnockbackBuff>(), 2);
         }
         public override void ModifyWeaponDamage(Player player, ref StatModifier damage)
         {
@@ -169,11 +215,11 @@ namespace YogsothothsYardMod.Content.Items.Weapon
             }
             int dmgBuff = 0;
             dmgBuff += applyThis(Condition.DownedKingSlime.IsMet(), 5);
-            dmgBuff += applyThis(Condition.DownedEyeOfCthulhu.IsMet(), 5);
-            dmgBuff += applyThis(Condition.DownedEowOrBoc.IsMet(), 5);
-            dmgBuff += applyThis(Condition.DownedQueenBee.IsMet(), 5);
-            dmgBuff += applyThis(Condition.DownedSkeletron.IsMet(), 5);
-            dmgBuff += applyThis(Main.hardMode, 10);
+            dmgBuff += applyThis(Condition.DownedEyeOfCthulhu.IsMet(), 8);
+            dmgBuff += applyThis(Condition.DownedEowOrBoc.IsMet(), 10);
+            dmgBuff += applyThis(Condition.DownedQueenBee.IsMet(), 10);
+            dmgBuff += applyThis(Condition.DownedSkeletron.IsMet(), 10);
+            dmgBuff += applyThis(Main.hardMode, 15);
             dmgBuff += applyThis(Condition.DownedQueenSlime.IsMet(), 20);
             dmgBuff += applyThis(Condition.DownedTwins.IsMet(), 20);
             dmgBuff += applyThis(Condition.DownedDestroyer.IsMet(), 20);

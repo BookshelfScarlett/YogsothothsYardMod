@@ -1,58 +1,51 @@
 YardModClientConfig: {
-	DisplayName: Yard Mod Client Config
-
-	SpecialRarity: {
-		Label: Special Rarity
-		Tooltip: ""
-	}
-
-	MaxParticleCounts: {
-		Label: Max Particle Counts
-		Tooltip: ""
-	}
+	DisplayName: Client Settings
 
 	DrawIcon: {
 		Label: Draw Icon
-		Tooltip: ""
-	}
-
-	PerformanceMode: {
-		Label: Performance Mode
-		Tooltip: ""
+		Tooltip:
+			'''
+			Allows drawing icons for mod items
+			Default is on
+			'''
 	}
 
 	DrawExecutionCounter: {
-		Label: Draw Execution Counter
-		Tooltip: ""
-	}
-
-	SimpleImmersiveInventory: {
-		Label: Simple Immersive Inventory
-		Tooltip: ""
+		Label: Draw Slaughter Progress Bar
+		Tooltip:
+			'''
+			Allows drawing the Slaughter Progress Bar while holding Tlipoca's Scythe
+			Enabled by default
+			'''
 	}
 
 	ScreenShakeStrength: {
 		Label: Screen Shake Strength
-		Tooltip: ""
+		Tooltip:
+			'''
+			Allows you to adjust the strength of screen shake
+			Range is (0 - 10)x
+			Default is 1x
+			'''
 	}
 
 	ScreenDarkStrength: {
-		Label: Screen Dark Strength
-		Tooltip: ""
-	}
-
-	TraditionalExecutionTooltipShowcase: {
-		Label: Traditional Execution Tooltip Showcase
-		Tooltip: ""
-	}
-
-	ModSFXVolume: {
-		Label: Mod S F X Volume
-		Tooltip: ""
+		Label: Screen Darkening Effect
+		Tooltip:
+			'''
+			Allows you to adjust the screen darkening intensity for some mod items
+			Range is 0 to 1, i.e. 0% to 100%
+			Default is 1
+			'''
 	}
 
 	TextboxSize: {
-		Label: Textbox Size
-		Tooltip: ""
+		Label: Textbox Size Adjustment
+		Tooltip:
+			'''
+			Allows you to adjust the size of extra Textboxes for items in the mod
+			If you encounter an issue where the Textbox is too large, you can adjust this setting
+			Default is 1, which means 100%
+			'''
 	}
 }

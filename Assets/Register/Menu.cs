@@ -59,8 +59,8 @@ namespace YogsothothsYardMod.Assets.Register
 
         public static Tex2DWithPath ButtonBackgroundMain { get; set; }
         public static Tex2DWithPath ButtonBackgroundSelected { get; set; }
-        public static Tex2DWithPath CGsButtonSelected{ get; set; }
-        public static Tex2DWithPath CGsButtonNotSelected{ get; set; }
+        public static Tex2DWithPath CGsButtonSelected { get; set; }
+        public static Tex2DWithPath CGsButtonNotSelected { get; set; }
         public override void Load()
         {
             LoadMenu();
@@ -97,8 +97,8 @@ namespace YogsothothsYardMod.Assets.Register
             XiaLuLingEmote = new Tex2DWithPath(Path_Menu + nameof(XiaLuLingEmote));
             ButtonBackgroundMain = new Tex2DWithPath(Path_Menu + nameof(ButtonBackgroundMain));
             ButtonBackgroundSelected = new Tex2DWithPath(Path_Menu + nameof(ButtonBackgroundSelected));
-            CGsButtonNotSelected= new Tex2DWithPath(Path_Menu + nameof(CGsButtonNotSelected));
-            CGsButtonSelected= new Tex2DWithPath(Path_Menu + nameof(CGsButtonSelected));
+            CGsButtonNotSelected = new Tex2DWithPath(Path_Menu + nameof(CGsButtonNotSelected));
+            CGsButtonSelected = new Tex2DWithPath(Path_Menu + nameof(CGsButtonSelected));
         }
         public void UnloadMenu()
         {

@@ -37,7 +37,6 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             Vector2 f2 = Main.rand.NextFromList([new Vector2(600f, 150f), new Vector2(-600, -150f)]);
             YardMenuDraw.Useframe = f;
             YardMenuDraw.CurCharactorFrame = f;
-            YardMenuDraw.CurPosIndex = Main.rand.Next(0, YardMenuDraw.RandPosList.Count);
             YardMenuDraw.DrawTextValue = value;
 
 

@@ -1,5 +1,6 @@
 ﻿using Terraria;
 using Terraria.ID;
+using Terraria.ModLoader;
 
 namespace YogsothothsYardMod.Globals.Methods
 {
@@ -34,5 +35,7 @@ namespace YogsothothsYardMod.Globals.Methods
         {
             return !item.IsTool() && (item.damage > 0 || item.type == ItemID.CoinGun);
         }
+        public static bool IsHolding<T>(this Player player) where T : ModItem
+            => player.HeldItem.type == ItemType<T>();
     }
 }

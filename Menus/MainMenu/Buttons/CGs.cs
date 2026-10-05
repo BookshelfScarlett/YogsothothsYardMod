@@ -59,7 +59,6 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
                 int f = Main.rand.NextFromList([0, 2, 4]);
                 YardMenuDraw.Useframe = f;
                 YardMenuDraw.CurCharactorFrame = f;
-                YardMenuDraw.CurPosIndex = Main.rand.Next(0, YardMenuDraw.RandPosList.Count);
                 YardMenuDraw.DrawTextValue = value;
 
             }
@@ -87,7 +86,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             LocalizedText path = Language.GetOrRegister("Mods.YogsothothsYardMod.Menu." + TextKeyName);
             float lerpY = Lerp(75f, 0f, lerpingOpcaity);
             string value = path.Value;
-            Vector2 textPos = Position + Vector2.UnitY * lerpY + Vector2.UnitX * 20f;
+            Vector2 textPos = Position + Vector2.UnitX * 20f;
             Vector2 textSize = ChatManager.GetStringSize(dynamicSpriteFont, value, Vector2.One);
 
             //目标宽度 = 文本宽度 + 左右各 padding 像素的留白
@@ -98,22 +97,23 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             float plateScaleX = desiredWidth / backgroundTexture.Width;
             Vector2 plateScale = new Vector2(plateScaleX, 1f);
             float globalTimer = (float)Math.Sin(Main.timeForVisualEffects * .01f) * 5f;
-            Vector2 overAllFloating = Vector2.UnitY * globalTimer;
+            Vector2 overAllFloating = Vector2.UnitY * globalTimer + Vector2.UnitY * lerpY;
             //背景
-            if (lerpingOpcaity >= .98f)
             {
-                spriteBatch.Draw(backgroundTexture, Position+overAllFloating, null, Color.White, 0, new Vector2(0, backgroundTexture.Size().Y / 2f), ButtonScale * LerpScaleValue * plateScale, 0, 0);
-                spriteBatch.Draw(catTexture, Position - Vector2.UnitX * 50f+overAllFloating, null, Color.White, 0, catTexture.Size() / 2f, ButtonScale, 0, 0);
+                spriteBatch.Draw(backgroundTexture, Position + overAllFloating, null, Color.White * lerpingOpcaity, 0, new Vector2(0, backgroundTexture.Size().Y / 2f), ButtonScale * LerpScaleValue * plateScale, 0, 0);
+                spriteBatch.Draw(catTexture, Position - Vector2.UnitX * 50f + overAllFloating, null, Color.White * lerpingOpcaity, 0, catTexture.Size() / 2f, ButtonScale, 0, 0);
             }
 
             //字体
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.AnisotropicClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            {
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, SamplerState.AnisotropicClamp, DepthStencilState.Default, RasterizerState.CullNone, null, Main.UIScaleMatrix);
 
-            ChatManager.DrawColorCodedString(spriteBatch, dynamicSpriteFont, value,
-                textPos+overAllFloating, Color.White * lerpingOpcaity, 0, new(0, dynamicSpriteFont.MeasureString(value).Y / 2f), Vector2.One * .55f * lerpingScale);
-            spriteBatch.End();
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+                ChatManager.DrawColorCodedString(spriteBatch, dynamicSpriteFont, value,
+                    textPos + overAllFloating, Color.White * lerpingOpcaity, 0, new(0, dynamicSpriteFont.MeasureString(value).Y / 2f), Vector2.One * .55f * lerpingScale);
+                spriteBatch.End();
+                spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.NonPremultiplied, SamplerState.LinearClamp, DepthStencilState.None, RasterizerState.CullNone, null, Main.UIScaleMatrix);
+            }
             //DrawIconHandler(spriteBatch, LerpScaleValue, LerpOpacityValue);
         }
     }

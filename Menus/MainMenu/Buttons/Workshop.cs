@@ -39,7 +39,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             YardMenuUpdates.GeneralFadingRatios = 0;
             YardMenuMethods.ChangeMenu(TargetMenuID);
             LocalizedText path = Language.GetOrRegister("Mods.YogsothothsYardMod.Menu." + TextKeyName);
-                SoundEngine.PlaySound(YardModSounds.MenuPress);
+            SoundEngine.PlaySound(YardModSounds.MenuPress);
             string value = path.Value;
             YardMenuDraw.DrawTextValue = value;
             YardWaifus randWaifu = Main.rand.NextFromList([YardWaifus.LittleLeaf, YardWaifus.Tlipoca, YardWaifus.XiaLuLing, YardWaifus.Yevna]);
@@ -48,7 +48,6 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             Vector2 f2 = Main.rand.NextFromList([new Vector2(600f, 150f), new Vector2(-600, -150f)]);
             YardMenuDraw.Useframe = f;
             YardMenuDraw.CurCharactorFrame = f;
-            YardMenuDraw.CurPosIndex = Main.rand.Next(0, YardMenuDraw.RandPosList.Count);
             YardMenuDraw.DrawTextValue = value;
 
             YardMenuMethods.OpenWorkshop();

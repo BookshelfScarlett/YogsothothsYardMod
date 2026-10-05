@@ -8,7 +8,6 @@ namespace YogsothothsYardMod.Content.Items.Armor.LittleLeaf
     [AutoloadEquip(EquipType.Body)]
     public class LittleLeafBody : ModItem, ILocalizedModType
     {
-        //public override string Texture => $"{GetType().Namespace}.LittleLeafHead".Replace('.', '/');
         public override string LocalizationCategory => "Items.Armor";
         public override void SetStaticDefaults()
         {
@@ -17,7 +16,8 @@ namespace YogsothothsYardMod.Content.Items.Armor.LittleLeaf
         public override void SetDefaults()
         {
             Item.width = Item.height = 16;
-            Item.defense = 4;
+            //Item.defense = 4;
+            Item.vanity = true;
             Item.YardMod().drawGhostIcon = true;
             Item.rare = RarityType<LittleLeaftRarity>();
         }
@@ -35,7 +35,7 @@ namespace YogsothothsYardMod.Content.Items.Armor.LittleLeaf
             {
                 LittleLeaftRarity.DrawItemName(line);
             }
-            line.ApplyColorForLegendaryData(LittleLeaftRarity.EdgeColor, LittleLeaftRarity.MainColor);
+            //line.ApplyColorForLegendaryData(LittleLeaftRarity.EdgeColor, LittleLeaftRarity.MainColor);
         }
 
         public override void AddRecipes()

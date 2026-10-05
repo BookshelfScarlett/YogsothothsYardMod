@@ -11,12 +11,6 @@
 	  <Folder Include="Content\Items\Vanity\" />
 	</ItemGroup>
 	<ItemGroup>
-	  <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
-	    <PrivateAssets>all</PrivateAssets>
-	    <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	</ItemGroup>
-	<ItemGroup>
 	<Publicize Include="tModLoader" IncludeVirtualMembers="false" />
 	</ItemGroup>
 

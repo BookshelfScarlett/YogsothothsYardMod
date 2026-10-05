@@ -1,13 +1,14 @@
 GenericText: {
-	BuffDetail: ""
-	HoldShiftAndRightClick: ""
-	LegendaryItem: ""
-	UpgradeProgress: ""
+	BuffDetail: Hold Left Alt for details
+	HoldShiftAndRightClick: Hold Left Shift and Right Click to switch
+	LegendaryItem: Legendary Item
+	UpgradeProgress: Legendary Lv. {0}/{1}
+	LegendaryAbilityTitle: Legendary Ability {0} (Lv. {1} Required)
 }
 
 SpecialAttack: {
-	ProgressName: ""
-	TitleName: ""
+	ProgressName: Slaughter: {0}/{1}
+	TitleName: Slaughter
 }
 
-CompanionWeapon: ""
+CompanionWeapon: Companion

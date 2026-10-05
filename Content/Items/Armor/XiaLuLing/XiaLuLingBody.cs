@@ -18,7 +18,7 @@ namespace YogsothothsYardMod.Content.Items.Armor.XiaLuLing
         public override void SetDefaults()
         {
             Item.width = Item.height = 16;
-            Item.defense = 4;
+            Item.vanity = true;
             Item.YardMod().drawGhostIcon = true;
             Item.rare = RarityType<XiaLuLingRarity>();
         }
@@ -36,7 +36,7 @@ namespace YogsothothsYardMod.Content.Items.Armor.XiaLuLing
             {
                 XiaLuLingRarity.DrawItemName(line);
             }
-            line.ApplyColorForLegendaryData(XiaLuLingRarity.EdgeColor, XiaLuLingRarity.MainColor);
+            //line.ApplyColorForLegendaryData(XiaLuLingRarity.EdgeColor, XiaLuLingRarity.MainColor);
         }
 
         public override void ModifyTooltips(List<TooltipLine> tooltips)

@@ -13,34 +13,31 @@ using YogsothothsYardMod.Globals.Methods;
 
 namespace YogsothothsYardMod.Content.Projs.Melee
 {
-    public class CrimsonScytheHealingSoul : ModProjectile, ILocalizedModType, IPixelatedRenderer
+    public class CrimsonReaperHeal : ModProjectile, ILocalizedModType, IPixelatedRenderer
     {
         public Player Owner => Main.player[Projectile.owner];
         public override string LocalizationCategory => "Projs.Melee";
         public override string Texture => YardModAssets.InvisAsset.Path;
-        public ref float Timer => ref Projectile.ai[0];
         public enum State
         {
-            Shoot,
-            Homing,
-            HomingTarget,
+            SlowDown,
+            Homingback,
             Fade
         }
+        public ref float Timer => ref Projectile.ai[0];
         public State AttackState
         {
             get => (State)Projectile.ai[1];
             set => Projectile.ai[1] = (float)value;
         }
-        public int HealAmount
-        {
-            get => (int)Projectile.ai[2];
-            set => Projectile.ai[2] = value;
-        }
+        public ref float HealRatios => ref Projectile.ai[2];
         public int CurSelected
         {
             get => (int)Projectile.localAI[0];
-            set => Projectile.localAI[0] = (float)value;
+            set => Projectile.localAI[0] = value;
         }
+        public int CurHeal = -1;
+        public NPC CurTarget = null;
         public override void SetStaticDefaults()
         {
             Projectile.ToTrailSetting(24);
@@ -52,11 +49,12 @@ namespace YogsothothsYardMod.Content.Projs.Melee
             Projectile.tileCollide = false;
             Projectile.ignoreWater = true;
             Projectile.noEnchantmentVisuals = true;
+            Projectile.penetrate = 1;
             Projectile.usesLocalNPCImmunity = true;
+            Projectile.DamageType = DamageClass.Generic;
             Projectile.localNPCHitCooldown = -1;
-            Projectile.penetrate = -1;
-            Projectile.DamageType = DamageClass.Melee;
             Projectile.extraUpdates = 2;
+
         }
         public static List<Color> BeginColor = new List<Color>()
         {
@@ -66,88 +64,105 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         {
             Color.LightPink,Color.LightSkyBlue,Color.White,Color.Crimson,Color.Violet,Color.LimeGreen
         };
+
         public void OnFirstFrame()
         {
-
             Color c1 = BeginColor[CurSelected];
             Color c2 = EndColor[CurSelected];
+            Vector2 pos = Projectile.Center;
+            ECSParticle.CrossGlow(pos, c2, 45, 1, 0.394f, 0.2f);
+            //爆炸特效
+            ScarletSound(YardModSounds.Tlipoca_SoulAbsorb, pos);
+            for (int i = 0; i < 16; i++)
+            {
+                ECSParticle.TurbulenceShinyOrb(pos.ToRandCirclePosEdge(4), Main.rand.NextFloat(0.8f, 1.15f) * 3.4f, RandLerpColor(c1, c2), 140, 1, .1f);
+            }
+            for (int i = 0; i < 16; i++)
+            {
+                ECSParticle.ShinyCrossStarECS(pos, RandVelTwoPi(1.2f, 3.3f), RandLerpColor(c1, c2), 120, 1, .71f);
+            }
 
             for (int i = 0; i < 16; i++)
             {
                 ECSParticle.ShinyCrossStarECS(Projectile.Center.ToRandCirclePos(16), Projectile.velocity.ToRandVelocity(ToRadians(30), 1.2f, 7.4f), RandLerpColor(c1, c2), 45, 1, Main.rand.NextFloat(.85f, 1.15f) * .34f, 0.2f);
                 ECSParticle.LightntingGlow(Projectile.Center.ToRandCirclePosEdge(8), Projectile.velocity.ToRandVelocity(0, 1.2f, 7.4f), RandLerpColor(c1, c2), 45, 1, Main.rand.NextFloat(.85f, 1.15f) * .4f);
             }
+
         }
+        public bool SpawnDamage = false;
         public override void AI()
         {
             if (!Projectile.YardMod().FirstFrame)
                 OnFirstFrame();
-            ProjAI();
-        }
-        public void ProjAI()
-        {
             Projectile.rotation = Projectile.velocity.ToRotation();
             Timer++;
-            if (AttackState == State.Shoot)
+            switch (AttackState)
             {
-                Projectile.velocity *= 0.97f;
-                Timer++;
+                case State.SlowDown:
+                    DoSlowDown();
+                    break;
+                case State.Homingback:
+                    DoHomingBack();
+                    break;
+                case State.Fade:
+                    DoFade();
+                    break;
+            }
+        }
+        public void DoSlowDown()
+        {
+            //正常情况下这里就持续一帧，应该不会出现问题，但也只是确保正常
+            if (!CurTarget.IsLegal())
+                Projectile.Kill();
+            if (!SpawnDamage)
+            {
+                int damageValue = (int)Clamp(Lerp(5, CurTarget.life * 0.05f, HealRatios), 0, CurTarget.life * 0.05f);
+                if (damageValue == 0)
+                    damageValue = 1;
+                if (damageValue > (int)(CurTarget.lifeMax * .01f))
+                    damageValue = (int)(CurTarget.lifeMax * .01f);
+                CurHeal = (int)(HealRatios * Owner.statLifeMax2);
+                if (Projectile.owner == Main.myPlayer)
+                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), Projectile.Center, Vector2.Zero, ProjectileType<CrimsonReaperBoom>(), damageValue, 0, Owner.whoAmI);
+                SpawnDamage = true;
+            }
+            Projectile.velocity *= 0.97f;
+            Timer++;
+            TrailDust();
+            if (Timer > Projectile.MaxUpdates * 30f)
+            {
+                //立刻完整计算当前的治疗并跳转攻击模式，开始返程
+                Projectile.netUpdate = true;
+                AttackState = State.Homingback;
+                Timer = 0;
+
+            }
+        }
+        public void DoHomingBack()
+        {
+            float maxTime = 30 * Projectile.MaxUpdates;
+            float progress = Utils.GetLerpValue(0, maxTime, Timer, true);
+            float lerpSpeed = Lerp(0.1f, 17f, progress);
+            float lerpAngle = Lerp(0f, 15f, EaseInCubic(progress));
+            Projectile.HomingTarget(Owner.Center, -1, lerpSpeed, 20, lerpAngle);
+            //完全确定可以执行转弯了才会播报这些粒子
+            //避免棱形粒子在转弯时出戏
+            if (progress == 1f)
                 TrailDust();
-                if (Timer > Projectile.MaxUpdates * 30f)
-                {
-                    Projectile.netUpdate = true;
-                    AttackState = State.Homing;
-                    Timer = 0;
-                }
-            }
-            else if (AttackState == State.Homing)
+            if (Projectile.Hitbox.Intersects(Owner.Hitbox))
             {
-                float maxTime = 30 * Projectile.MaxUpdates;
-                float progress = Utils.GetLerpValue(0, maxTime, Timer, true);
-                float lerpSpeed = Lerp(0.1f, 17f, progress);
-                float lerpAngle = Lerp(0f, 15f, EaseInCubic(progress));
-                Projectile.HomingTarget(Owner.Center, -1, lerpSpeed, 20, lerpAngle);
-                //完全确定可以执行转弯了才会播报这些粒子
-                //避免棱形粒子在转弯时出戏
-                if (progress == 1f)
-                    TrailDust();
-                if (Projectile.Hitbox.Intersects(Owner.Hitbox))
-                {
-                    AttackState = State.Fade;
-                    Timer = 0;
-                    int healAmt = YardMethods.GetLegendaryLevel() >= 3 ? 4 : 2;
-                    Owner.ScarletHeal(healAmt, Color.LimeGreen);
-                }
+                AttackState = State.Fade;
+                Timer = 0;
+                Owner.ScarletHeal(CurHeal);
             }
-            else if (AttackState == State.HomingTarget)
+        }
+        public void DoFade()
+        {
+            Projectile.Opacity *= 0.95f;
+            Projectile.velocity *= 0.02f;
+            if (Projectile.Opacity < 0.08f)
             {
-                NPC curTar = Main.npc[Projectile.YardMod().GlobalTargetIndex];
-                if (curTar.IsLegal())
-                {
-                    float maxTime = 30 * Projectile.MaxUpdates;
-                    float progress = Utils.GetLerpValue(0, maxTime, Timer, true);
-                    float lerpSpeed = Lerp(0.1f, 17f, progress);
-                    float lerpAngle = Lerp(0f, 15f, EaseInCubic(progress));
-                    Projectile.HomingTarget(curTar.Center, -1, lerpSpeed, 20, lerpAngle);
-                    //完全确定可以执行转弯了才会播报这些粒子
-                    //避免棱形粒子在转弯时出戏
-                    if (progress == 1f)
-                        TrailDust();
-                }
-            }
-            else if (AttackState == State.Fade)
-            {
-
-                Projectile.Opacity *= 0.95f;
-                Projectile.velocity *= 0.02f;
-                if (Projectile.Opacity < 0.08f)
-                {
-                    Projectile.Kill();
-                }
-            }
-            else
-            {
-
+                Projectile.Kill();
             }
         }
         public void TrailDust()
@@ -161,25 +176,10 @@ namespace YogsothothsYardMod.Content.Projs.Melee
             if (Main.rand.NextBool(8))
                 ECSParticle.LightntingGlow(Projectile.Center.ToRandCirclePosEdge(8), Projectile.velocity / 8f, RandLerpColor(c1, c2), 45, 1, Main.rand.NextFloat(.85f, 1.15f) * .4f);
         }
-        public override bool? CanDamage() => AttackState == State.HomingTarget;
-        public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
-        {
-            if (YardMethods.GetLegendaryLevel() >= 3)
-                modifiers.SourceDamage *= 2;
-        }
-        public override void OnHitNPC(NPC target, NPC.HitInfo hit, int damageDone)
-        {
-            if (AttackState == State.HomingTarget)
-            {
-                AttackState = State.Fade;
-                Timer = 0;
-                Projectile.netUpdate = true;
-            }
-        }
-        public SpriteBatch SB { get => Main.spriteBatch; }
-        public GraphicsDevice GD { get => Main.graphics.GraphicsDevice; }
+
         public BlendState BlendState => BlendState.Additive;
         public ScarletDrawLayer LayerToRenderTo => ScarletDrawLayer.BeforeDusts;
+        public SpriteBatch SB { get => Main.spriteBatch; }
         public void RenderPixelated(SpriteBatch spriteBatch)
         {
             if (!Projectile.YardMod().FirstFrame)
@@ -235,5 +235,6 @@ namespace YogsothothsYardMod.Content.Projs.Melee
             PixelatedRenderManager.BeginDrawProj = true;
             return false;
         }
+
     }
 }

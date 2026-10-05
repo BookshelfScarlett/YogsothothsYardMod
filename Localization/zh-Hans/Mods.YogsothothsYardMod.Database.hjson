@@ -3,6 +3,7 @@ GenericText: {
 	HoldShiftAndRightClick: 按住左 Shift 后右键切换
 	LegendaryItem: 传奇物品
 	UpgradeProgress: 传奇等级·{0} / {1}
+	LegendaryAbilityTitle: 传奇能力{0}（需求等级{1})
 }
 
 SpecialAttack: {

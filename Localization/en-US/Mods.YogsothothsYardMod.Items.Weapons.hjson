@@ -1,49 +1,68 @@
 Melee: {
 	CrimsonScythe: {
-		DisplayName: Crimson Heavy Scythe
+		DisplayName: Tlipoca's Scythe
 		Tooltip:
 			'''
-			Grants[ScarletBuff/HJScarletRework/AntiKnockbackBuff]
-			Fourth swing has wider range
-			Each attack inflicts[ScarletDebuff/ContinentOfJourney/DivineFireBuff]
-			Causes bleed, and releases soul stones
-			You can slash the soul stones to return souls
-			Or, Right-click to harvest and heal
+			Grants[YardModBuff/YogsothothsYardMod/AntiKnockbackBuff] while held
+			Fourth slash widens range
+			On hit: bleed, release Soul Stones, apply[YardModDebuff/Terraria/Bleeding]
+			Slash Soul Stones to return souls
+			Right-click Soul Stones to harvest and heal
 			'''
 		SpecialAttack:
 			'''
-			Each of the next 20 slashes grants you 2 defense on hit
-			During these slashes, automatically collect souls int the stones
-			Absorb one soul while returning the other to its owner
+			Next 20 slashes grant defense
+			Auto-collect Soul Stones during slashes
+			Absorb one soul, return the other
 			'''
-		FlavorTooltips: Beneath the blood moon, none can escape her harvest
+		FlavorTooltips: Beneath the crimson moon, none can escape her harvest
 		ExtraMechanic:
 			'''
-			When combined with the Front Desk Reaper set, gain the following effects:
-			Increase executor damage, critical strike chance, and critical strike damage by 15%
-			+30 defense, allows unlimited flight time and grants a dash ability
+			Carried by Tlipoca:
+			Greatly boosts melee stats and defense
 			'''
-		ConditionMechanic:
-			'''
-			The Black First Sun has sealed the power of this item
-			Perhaps it is time to surpass the Sun God
-			'''
+
+		LegendaryAbility: {
+			Type1:
+				'''
+				Wider slash range
+				Returned Soul Stones deal double damage
+				+2 healing from Soul Stones
+				'''
+			Type2:
+				'''
+				Wider slash range
+				Bleeding enemies release extra blood bullets 
+				that seek more enemies
+				'''
+			Type3:
+				'''
+				Wider slash range
+				While held: unlimited flight, 
+				Crimson Dash, invincible during dash
+				'''
+			Type4:
+				'''
+				Wider slash range
+				Scythe hits ignore defense
+				'''
+		}
 
 		KillerType: {
 			OnlyCoins:
 				'''
-				Right-click to toggle the town NPC killing option
-				Currently allows killing town NPCs, dropping only coins
+				Shift + Right-click to toggle NPC kill mode
+				Currently kills NPCs, drops coins only
 				'''
 			AllStuff:
 				'''
-				Right-click to toggle the town NPC killing option
-				Currently allows killing town NPCs, dropping coins and items
+				Shift + Right-click to toggle NPC kill mode
+				Currently kills NPCs, drops coins and special items
 				'''
 			NoKilling:
 				'''
-				Right-click to toggle the town NPC killing option
-				Currently town NPC killing is disabled
+				Shift + Right-click to toggle NPC kill mode
+				NPC killing disabled
 				'''
 		}
 	}

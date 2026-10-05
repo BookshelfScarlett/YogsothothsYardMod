@@ -2,6 +2,9 @@ Melee: {
 	// CrimsonScytheHealingSoul.DisplayName: Crimson Scythe Healing Soul
 	// CrimsonScytheSkillProj.DisplayName: Crimson Scythe Skill Proj
 	// CrimsonScytheHeldProj.DisplayName: Crimson Scythe Held Proj
+	// CrimsonScytheBloodyBullet.DisplayName: Crimson Scythe Bloody Bullet
+	// CrimsonReaperBoom.DisplayName: Crimson Reaper Boom
+	// CrimsonReaperHeal.DisplayName: Crimson Reaper Heal
 }
 
 // CrimsonScytheSoulStone.DisplayName: Crimson Scythe Soul Stone

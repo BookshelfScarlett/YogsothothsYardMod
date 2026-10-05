@@ -36,7 +36,7 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
         public override void OnMouseLeftRelease()
         {
             //不做2级ui跳转了，直接退出游戏，符合泰拉瑞亚的游戏直觉
-                SoundEngine.PlaySound(YardModSounds.MenuPress);
+            SoundEngine.PlaySound(YardModSounds.MenuPress);
             Main.instance.Exit();
         }
         public override void FinalPostUpdate()

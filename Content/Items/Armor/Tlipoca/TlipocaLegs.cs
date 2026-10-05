@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Terraria;
+using Terraria.Localization;
 using Terraria.ModLoader;
 using YogsothothsYardMod.Content.Rarity.Types;
 using YogsothothsYardMod.Globals.Methods;
@@ -14,6 +15,8 @@ namespace YogsothothsYardMod.Content.Items.Armor.Tlipoca
         {
             base.SetStaticDefaults();
         }
+        public float CritDamage = .02f;
+        public override LocalizedText Tooltip => base.Tooltip.WithFormatArgs(CritDamage.ToPercent());
         public override void SetDefaults()
         {
             Item.width = Item.height = 16;

@@ -35,9 +35,11 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         public bool ThirdSwing = false;
         public float SwingTime = 0;
         public float StopTiming = 0;
+        public float OverallScale = 1;
         public List<Vector2> OldAimPos = [];
         public override void SetDefaults()
         {
+            Projectile.width = Projectile.height = 280;
             Projectile.SetUpHeldProj(10);
             Projectile.friendly = true;
             Projectile.penetrate = -1;
@@ -49,6 +51,21 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         }
         public void OnFirstFrame()
         {
+            float applyScale(int abilityType, float scale2)
+            {
+                int curLevel = YardMethods.GetLegendaryLevel();
+                int thresholdLevel = (4 * abilityType) - 1;
+                float scale = 0f;
+                if (curLevel >= thresholdLevel)
+                    return scale2;
+                else
+                    return scale;
+            }
+            OverallScale = .8f;
+            OverallScale += applyScale(1, .2f);
+            OverallScale += applyScale(2, .2f);
+            OverallScale += applyScale(3, .25f);
+            OverallScale += applyScale(4, .3f);
             ThirdSwing = SwingTime > 2;
             if (ThirdSwing)
             {
@@ -65,6 +82,7 @@ namespace YogsothothsYardMod.Content.Projs.Melee
                 Helper.MaxProgress[2] = (int)(AttackSpeed * .95f);
                 Width = Height *= Lerp(1f, 1.12f, SwingTime / 2f);
             }
+            Projectile.Resize((int)(320 * OverallScale*Width), (int)(320 * OverallScale*Height));
             BeginTargetRotation = Owner.Center.ToMouseVector2().ToRotation();
             TargetRotation = BeginTargetRotation;
         }
@@ -176,7 +194,7 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         public void UpdtaeFullCircleEnd()
         {
             Helper.UpdateAniState(1);
-            float heldScale = Owner.HeldItem.scale;
+            float heldScale = Owner.HeldItem.scale * OverallScale;
             float easedProgress = EaseOutCubic(Helper.GetAniProgress(1));
             float beginAngle = 415f * Flip.ToDirectionInt();
             float endAngle = 420 * Flip.ToDirectionInt();
@@ -190,7 +208,7 @@ namespace YogsothothsYardMod.Content.Projs.Melee
 
         public void UpdtaeFullCircleBegin()
         {
-            float heldScale = Owner.HeldItem.scale;
+            float heldScale = Owner.HeldItem.scale * OverallScale;
             Helper.UpdateAniState(0);
             float easedProgress = EaseOutCubic(Helper.GetAniProgress(0));
             float beginAngle = -210f * Flip.ToDirectionInt();
@@ -261,7 +279,7 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         }
         public void UpdateBeginAnimation()
         {
-            float heldScale = Owner.HeldItem.scale;
+            float heldScale = Owner.HeldItem.scale * OverallScale;
             Helper.UpdateAniState(0);
             float easedProgress = EaseOutExpo(Helper.GetAniProgress(0));
             float beginAngle = -195f * Flip.ToDirectionInt();
@@ -303,7 +321,7 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         public void UpdateEndAnimation()
         {
             Helper.UpdateAniState(1);
-            float heldScale = Owner.HeldItem.scale;
+            float heldScale = Owner.HeldItem.scale * OverallScale;
             float easedProgress = EaseOutBack(Helper.GetAniProgress(1));
             float beginAngle = 185f * Flip.ToDirectionInt();
             float endAngle = 195 * Flip.ToDirectionInt();
@@ -321,7 +339,7 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         public void UpdateFinalAnimation()
         {
             Helper.UpdateAniState(2);
-            float heldScale = Owner.HeldItem.scale;
+            float heldScale = Owner.HeldItem.scale * OverallScale;
             float easedProgress = EaseInCubic(Helper.GetAniProgress(2));
             float beginAngle = 185f * Flip.ToDirectionInt();
             float endAngle = 183f * Flip.ToDirectionInt();
@@ -393,6 +411,10 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         #region 处理命中
         public override void ModifyHitNPC(NPC target, ref NPC.HitModifiers modifiers)
         {
+            if (target.friendly && target.townNPC && target.type != NPCID.DD2EterniaCrystal && Owner.YardMod().crimsonScytheSlayNPCType > 0)
+            {
+                modifiers.FinalDamage *= 300;
+            }
             base.ModifyHitNPC(target, ref modifiers);
         }
         public override bool? CanHitNPC(NPC target)
@@ -421,7 +443,7 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         {
             if (target.friendly && target.townNPC)
             {
-                new ScytheBlood(target.Center, Main.rand.NextFloat(.4f, .6f) * .6f).Spawn();
+                new ScytheBlood(target.Center, Main.rand.NextFloat(.4f, .6f) * .6f).SpawnToNonPreMult();
                 ScreenDarknessSystem.AddScreenDarkness(.85f, 2, 1, 12, EaseInCubic, EaseInCubic);
                 ApplyKilledNPCSpecialDrop(target);
                 return;
@@ -559,8 +581,6 @@ namespace YogsothothsYardMod.Content.Projs.Melee
             }
             if (target.type == NPCID.DD2Bartender)
             {
-                //if (DownedBossSystem.downedBarrier)
-                //    FastDrop(ItemID.DefenderMedal, Main.rand.Next(100, 151));
                 if (Main.hardMode)
                     FastDrop(ItemID.DefenderMedal, Main.rand.Next(10, 31));
                 else
@@ -573,13 +593,11 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         }
         public void SoulStoneSpawn(NPC target)
         {
-            //if (!DownedBossSystem.downedSunGod)
-            //    return;
             //灵魂石
             if (Owner.ownedProjectileCounts[ProjectileType<CrimsonScytheSoulStone>()] < CrimsonScythe.MaxSoulStone)
             {
                 Vector2 dir = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2 * Projectile.spriteDirection);
-                Projectile proj = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), target.Center, dir.ToRandVelocity(ToRadians(75f), 8f, 13f), ProjectileType<CrimsonScytheSoulStone>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
+                Projectile proj = Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), target.Center, dir.ToRandVelocity(ToRadians(75f), 1f, 2f), ProjectileType<CrimsonScytheSoulStone>(), Projectile.damage, Projectile.knockBack, Projectile.owner);
                 proj.originalDamage = Projectile.damage;
                 proj.YardMod().GlobalTargetIndex = target.whoAmI;
             }
@@ -617,8 +635,6 @@ namespace YogsothothsYardMod.Content.Projs.Melee
                 return;
             Owner.YardMod().crimsonScytheHitCounter += 1;
             StopTiming = 20;
-            //if (DownedBossSystem.downedSunGod)
-            //    Projectile.AddExecutionTimeImmediate(OriginalItemID);
             float rot = Projectile.Center.GetNormalVector2(target.Center).ToRotation();
             if (ThirdSwing)
             {
@@ -643,10 +659,10 @@ namespace YogsothothsYardMod.Content.Projs.Melee
                 //普通挥击下最多只生成12次特效，别产太多了
                 if (Projectile.numHits < 12)
                     HitSparkle(target, hit, damageDone);
+
             }
             else
             {
-                ScreenDarknessSystem.AddScreenDarkness(.85f, 2, 1, 12, EaseInCubic, EaseInCubic);
                 if (Projectile.numHits < 12)
                     HitSparkleHeavy(target, hit, damageDone);
             }
@@ -665,6 +681,16 @@ namespace YogsothothsYardMod.Content.Projs.Melee
             int reverse = Projectile.spriteDirection;
             //Vector2 dir = Projectile.Center.GetNormalVector2( target.Center);
             Vector2 dir = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2 * reverse);
+            if (YardMethods.GetLegendaryLevel() >= 7)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), target.Center,
+                        dir.ToRandVelocity(ToRadians(30), 3f, 6f),
+                        ProjectileType<CrimsonScytheBloodyBullet>(), Projectile.damage / 2, Projectile.knockBack, Projectile.owner);
+                }
+            }
+
             for (int i = 0; i < 40; i++)
             {
                 ECSParticle.SmokeParticle(target.Center, dir.ToRandVelocity(ToRadians(35), 1.2f, 22.5f), RandLerpColor(Color.DarkRed, Color.Black), 40, RandRotTwoPi, 1, Main.rand.NextFloat(.9f, 1.2f) * .52f, blendstate: BlendState.AlphaBlend);
@@ -697,6 +723,16 @@ namespace YogsothothsYardMod.Content.Projs.Melee
         {
             int reverse = Projectile.spriteDirection;
             Vector2 dir = Projectile.rotation.ToRotationVector2().RotatedBy(PiOver2 * reverse);
+            if (YardMethods.GetLegendaryLevel() >= 7)
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    Projectile.NewProjectileDirect(Projectile.GetSource_FromThis(), target.Center,
+                        dir.ToRandVelocity(ToRadians(30), 3f, 6f),
+                        ProjectileType<CrimsonScytheBloodyBullet>(), Projectile.damage / 2, Projectile.knockBack, Projectile.owner);
+                }
+            }
+
             for (int i = 0; i < 32; i++)
             {
                 ECSParticle.SmokeParticle(target.Center, dir.ToRandVelocity(ToRadians(35), 1.2f, 22.5f), RandLerpColor(Color.DarkRed, Color.Black), 40, RandRotTwoPi, 1, Main.rand.NextFloat(.9f, 1.2f) * .52f, blendstate: BlendState.AlphaBlend);

@@ -1,17 +1,11 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using ReLogic.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
 using Terraria.Audio;
 using Terraria.ID;
 using Terraria.Localization;
 using Terraria.UI.Chat;
 using YogsothothsYardMod.Assets.Register;
-using YogsothothsYardMod.Globals.Methods;
 using YogsothothsYardMod.Menus.Managers;
 
 namespace YogsothothsYardMod.Menus.AltMenu
@@ -28,7 +22,7 @@ namespace YogsothothsYardMod.Menus.AltMenu
             YardMenuMethods.OpenAchievements();
             YardMenuDraw.DrawTextValue = TextValue;
             YardMenuDraw.IsOpeningAchievement = true;
-                SoundEngine.PlaySound(YardModSounds.MenuPress);
+            SoundEngine.PlaySound(YardModSounds.MenuPress);
             YardMenuLayers.OverlayBlackOpacity = 0;
             YardMenuUpdates.GeneralFadingRatios = 0;
         }

@@ -1,14 +1,7 @@
 ﻿using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using ReLogic.Graphics;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 using Terraria;
-using Terraria.GameContent.Ambience;
 using Terraria.UI.Chat;
 using YogsothothsYardMod.Assets.Register;
 using YogsothothsYardMod.Core.Database.Enums;
@@ -18,7 +11,7 @@ using YogsothothsYardMod.Menus.Managers;
 
 namespace YogsothothsYardMod.Menus.AltMenu
 {
-    public class CGsHud :YardHud
+    public class CGsHud : YardHud
     {
         public static bool IsEnable = false;
         public static bool IsFading = true;
@@ -80,7 +73,7 @@ namespace YogsothothsYardMod.Menus.AltMenu
 
             }
         }
-        public static void DrawCharactor(SpriteBatch spriteBatch,float opac)
+        public static void DrawCharactor(SpriteBatch spriteBatch, float opac)
         {
             Texture2D useTex = YardMenuDraw.Waifus switch
             {
@@ -101,11 +94,11 @@ namespace YogsothothsYardMod.Menus.AltMenu
             {
                 YardMenuDraw.CurCharactorFrame = YardMenuDraw.Useframe;
             }
-            Vector2 pos = YardMethods.GetScreenSize / 2f + new Vector2(600,150);
-            spriteBatch.Draw(useTex, pos, frame, Color.White*opac, YardMenuDraw.CurRotation, frame.Size() / 2f, .5f, 0, 0);
+            Vector2 pos = YardMethods.GetScreenSize / 2f + new Vector2(600, 150);
+            spriteBatch.Draw(useTex, pos, frame, Color.White * opac, YardMenuDraw.CurRotation, frame.Size() / 2f, .5f, 0, 0);
         }
 
-        public static void DrawBackgroundDirty(SpriteBatch SB,float opac)
+        public static void DrawBackgroundDirty(SpriteBatch SB, float opac)
         {
             Vector2 screenSize = YardMethods.GetScreenSize;
             Rectangle rec = Utils.CenteredRectangle(screenSize / 2f, new Vector2(screenSize.X, screenSize.Y));
@@ -116,7 +109,7 @@ namespace YogsothothsYardMod.Menus.AltMenu
             if (YardMenuDraw.IsOpeningAchievement)
                 xBlock += screenSize.X / 9f;
             float yBlock = screenSize.Y + 10;
-            float overAllOpac = 1f*opac;
+            float overAllOpac = 1f * opac;
             //画出红色边框
             rec = Utils.CenteredRectangle(screenSize / 2f, new Vector2(xBlock, yBlock));
             SB.Draw(cube, rec, Color.Lerp(Color.DarkRed, Color.Black, .5f) * overAllOpac);
@@ -141,9 +134,9 @@ namespace YogsothothsYardMod.Menus.AltMenu
             Vector2 textPos = screenSize / 2 - Vector2.UnitY * 405;
             for (int i = 0; i < 8; i++)
                 ChatManager.DrawColorCodedString(SB, dynamicSpriteFont, YardMenuDraw.DrawTextValue,
-                    textPos + (TwoPi / 8f * i).ToRotationVector2() * 1.05f, Color.Black *opac, 0, dynamicSpriteFont.MeasureString(YardMenuDraw.DrawTextValue) / 2f, Vector2.One * 1.1f);
+                    textPos + (TwoPi / 8f * i).ToRotationVector2() * 1.05f, Color.Black * opac, 0, dynamicSpriteFont.MeasureString(YardMenuDraw.DrawTextValue) / 2f, Vector2.One * 1.1f);
             ChatManager.DrawColorCodedString(SB, dynamicSpriteFont, YardMenuDraw.DrawTextValue,
-                textPos, Color.White*opac, 0, dynamicSpriteFont.MeasureString(YardMenuDraw.DrawTextValue) / 2f, Vector2.One * 1.1f);
+                textPos, Color.White * opac, 0, dynamicSpriteFont.MeasureString(YardMenuDraw.DrawTextValue) / 2f, Vector2.One * 1.1f);
         }
 
     }

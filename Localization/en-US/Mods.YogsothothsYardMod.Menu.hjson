@@ -1,14 +1,14 @@
-Workshop: ""
-Exit: ""
-LoadGames: ""
-Options: ""
-Name: ""
-CGs: ""
-CGsHud: ""
-Achievements: ""
-Credits: ""
-Multiplayer: ""
-JumpToSina: �鿴�ٷ�΢��
-JumpToB2: �鿴�ٷ�Bվҳ��
-JumpToX: �鿴�ٷ�����
-JumpToDC: ����ٷ�Discord������
+Workshop: Workshop
+Exit: Exit
+LoadGames: Single Player
+Options: Options
+Name: Yog-Sothoth's Yard
+CGs: Gallery
+CGsHud: Gallery
+Achievements: Achievements
+Credits: Credits
+Multiplayer: Multiplayer
+JumpToSina: View Official Weibo
+JumpToB2: View Official Bilibili Page
+JumpToX: View Official Twitter
+JumpToDC: Join Official Discord Server

@@ -3,4 +3,16 @@ Items: {
 		DisplayName: 调试
 		Tooltip: ""
 	}
+
+	YogsothothsYardPack: {
+		DisplayName: 犹格索托斯的庭院奖励包
+		Tooltip:
+			'''
+			开启后为你提供角色们的时装，与特莉波卡的物品组合
+			“请支持《犹格索托斯的庭院》”
+			“另外，员工可攻略”
+			'''
+	}
 }
+
+Keybinds.GenerialSkillKeybind.DisplayName: 技能键

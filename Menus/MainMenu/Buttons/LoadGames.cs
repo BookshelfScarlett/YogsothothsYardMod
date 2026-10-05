@@ -5,7 +5,6 @@ using Terraria.ID;
 using Terraria.Localization;
 using YogsothothsYardMod.Assets.Register;
 using YogsothothsYardMod.Core.Database.Enums;
-using YogsothothsYardMod.Core.Huds;
 using YogsothothsYardMod.Globals.Methods;
 using YogsothothsYardMod.Menus.Classes;
 using YogsothothsYardMod.Menus.Managers;
@@ -38,7 +37,6 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             Vector2 f2 = Main.rand.NextFromList([new Vector2(600f, 150f), new Vector2(-600, -150f)]);
             YardMenuDraw.Useframe = f;
             YardMenuDraw.CurCharactorFrame = f;
-            YardMenuDraw.CurPosIndex = Main.rand.Next(0, YardMenuDraw.RandPosList.Count);
             YardMenuDraw.DrawTextValue = value;
         }
         public override void MouseHover(bool isHover)

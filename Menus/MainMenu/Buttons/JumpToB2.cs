@@ -98,8 +98,8 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             //绘制文本栏背景
             float realTextOpacity = TextOpactiy * lerpPosY;
             Vector2 backgroundCenter = IconCenter + new Vector2(-20 * realTextOpacity, 0) - Vector2.UnitX * 20f;
-            Texture2D backgroundPlate = YardModAssets.IconSelectedBackground.Value;
-            Vector2 plateOrigin = new Vector2(backgroundPlate.Size().X, backgroundPlate.Size().Y / 2);
+            Texture2D backgroundPlate = YardModAssets.YardSheet.Value;
+            Vector2 plateOrigin = new Vector2(backgroundPlate.Size().X / 2, backgroundPlate.Size().Y);
             Vector2 platePos = backgroundCenter + Vector2.UnitY * 5 - Vector2.UnitX * 5 + vectorHoverOffset;
             Vector2 plateSize = new Vector2(realTextOpacity * BackgroundScaleX, 1);
             float ratios = textSize.X / plateSize.X;
@@ -109,9 +109,9 @@ namespace YogsothothsYardMod.Menus.MainMenu.Buttons
             float desiredWidth = textSize.X + padding * 2f;
 
             //用纹理原始宽度计算缩放，使绘制宽度恰好等于 desiredWidth
-            float plateScaleX = desiredWidth / backgroundPlate.Width;
-            Vector2 plateScale = new Vector2(plateScaleX, 1f);
-            Main.spriteBatch.Draw(backgroundPlate, platePos, null, Color.White * realTextOpacity, 0, plateOrigin, plateScale, 0, 0);
+            float plateScaleX = desiredWidth / backgroundPlate.Height;
+            Vector2 plateScale = new Vector2(1f, plateScaleX);
+            Main.spriteBatch.Draw(backgroundPlate, platePos, null, Color.White * realTextOpacity, -PiOver2, plateOrigin, plateScale, 0, 0);
 
             //绘制文本与高光方块
             spriteBatch.End();

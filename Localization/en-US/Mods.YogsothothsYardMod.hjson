@@ -3,4 +3,16 @@ Items: {
 		DisplayName: Test Sword
 		Tooltip: ""
 	}
+
+	YogsothothsYardPack: {
+		DisplayName: Yog-Sothoth's Yard Reward Pack
+		Tooltip:
+			'''
+			Opens to provide you with the characters' vanity sets, along with Tlipoca's item combination
+			"Please support Yog-Sothoth's Yard"
+			"Also, employees are romanceable"
+			'''
+	}
 }
+
+Keybinds.GenerialSkillKeybind.DisplayName: Ability Key
