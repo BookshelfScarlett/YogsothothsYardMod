@@ -8,6 +8,7 @@ using YogsothothsYardMod.Content.Buffs;
 using YogsothothsYardMod.Content.Projs.Melee;
 using YogsothothsYardMod.Content.Rarity.Types;
 using YogsothothsYardMod.Core.Database.Localizations;
+using YogsothothsYardMod.Globals.Configs;
 using YogsothothsYardMod.Globals.Methods;
 using YogsothothsYardMod.Globals.Methods.Textbox;
 
@@ -202,9 +203,8 @@ namespace YogsothothsYardMod.Content.Items.Weapon
         {
 
             // 必须手动转换，不然会按照int进行加成
-            float Buff = (float)((float)(BaseDamage * CrossModSupprt() + LegendaryDamage()) / (float)BaseDamage);
+            float Buff = (float)((float)(BaseDamage * YardServerConfig.Instance.ModWeaponDamageMult + LegendaryDamage()) / (float)BaseDamage);
             damage *= Buff;
-
         }
         //8个Boss
         public static int LegendaryDamage()
@@ -231,20 +231,6 @@ namespace YogsothothsYardMod.Content.Items.Weapon
             dmgBuff += applyThis(Condition.DownedCultist.IsMet(), 100);
             dmgBuff += applyThis(Condition.DownedMoonLord.IsMet(), 200);
             return dmgBuff;
-        }
-        public static int CrossModSupprt()
-        {
-            int crossModSupport = 1;
-            //开灾厄的情况下基础伤害翻个15倍
-            if (ModLoader.HasMod("CalamityMod"))
-                crossModSupport += 14;
-            if (ModLoader.HasMod("InfernumMode"))
-                crossModSupport += 15;
-            if (ModLoader.HasMod("ContinentOfJourney"))
-                crossModSupport += 1;
-            if (ModLoader.HasMod("HJScarletRework"))
-                crossModSupport += 1;
-            return crossModSupport;
         }
         public override void AddRecipes()
         {

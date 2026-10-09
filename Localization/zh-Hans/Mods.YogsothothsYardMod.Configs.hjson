@@ -49,3 +49,12 @@ YardModClientConfig: {
 			'''
 	}
 }
+
+YardServerConfig: {
+	// DisplayName: Yard Server Config
+
+	ModWeaponDamageMult: {
+		// Label: Mod Weapon Damage Mult
+		// Tooltip: ""
+	}
+}
